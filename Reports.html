@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reports | Earth Telecommunications</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            height: 100vh;
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            border-right: 3px solid #4a69bd;
+            box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-content {
+            min-height: 100vh;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .content-body {
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        .nav-link {
+            border-radius: 10px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #4a69bd, #5f7cdb);
+            box-shadow: 0 5px 15px rgba(74, 105, 189, 0.4);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px 15px 0 0;
+            border-bottom: 2px solid #4a69bd;
+        }
+
+        .btn {
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4a69bd, #5f7cdb);
+            border: none;
+            box-shadow: 0 5px 15px rgba(74, 105, 189, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(74, 105, 189, 0.6);
+        }
+
+        .report-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover .report-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #4a69bd;
+            box-shadow: 0 0 0 0.2rem rgba(74, 105, 189, 0.25);
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            transform: rotate(45deg);
+        }
+
+        .loading-spinner {
+            display: none;
+            margin: 20px auto;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e9ecef;
+            border-top: 4px solid #4a69bd;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .report-preview {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .chart-container {
+            height: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 767.98px) {
+            .sidebar {
+                position: fixed;
+                z-index: 1040;
+                width: 280px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .sidebar-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1039;
+                display: none;
+            }
+
+            .sidebar-backdrop.show {
+                display: block;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <aside class="col-md-3 col-lg-2 text-white d-flex flex-column p-3 sidebar" id="sidebar">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="text-center w-100">
+                        <div class="bg-primary bg-opacity-20 p-3 rounded-circle d-inline-block mb-2">
+                            <span class="fs-2">🌍</span>
+                        </div>
+                        <h6 class="text-white">Earth Telecom</h6>
+                    </div>
+                    <button class="btn-close btn-close-white d-md-none" onclick="toggleSidebar()"></button>
+                </div>
+                <nav class="nav flex-column">
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="Dashboard.html" onclick="showSection('dashboard')">
+                        <span class="me-2">🏠</span> Dashboard
+                    </a>
+                    <a class="nav-link active text-white d-flex align-items-center mb-2" href="Reports.html" onclick="showSection('reports')">
+                        <span class="me-2">📊</span> Reports
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="Survey.html" onclick="showSection('survey')">
+                        <span class="me-2">📝</span> Survey
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="workorder.html" onclick="showSection('workorder')">
+                        <span class="me-2">📋</span> Work Order
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="#" onclick="showSection('bwmodify')">
+                        <span class="me-2">🔧</span> BW Modify
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="settings.html" onclick="showSection('settings')">
+                        <span class="me-2">⚙️</span> Settings
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center" href="#" onclick="showSection('users')">
+                        <span class="me-2">👥</span> Users
+                    </a>
+                </nav>
+            </aside>
+
+            <div class="col-md-9 col-lg-10 main-content">
+                <header class="border-bottom p-3 bg-white bg-opacity-90 backdrop-filter-blur sticky-top">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="btn btn-dark d-md-none" onclick="toggleSidebar()">
+                            ☰ Menu
+                        </button>
+                        <div class="dropdown ms-auto">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userMenuButton"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                👤 Welcome! Mr/Mrs UserName
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
+                                <li class="dropdown-item-text"><strong>Mr. User Name</strong><br><small>username@test.com.bd</small></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">🔐 Change Password</a></li>
+                                <li><a class="dropdown-item" href="#">🔓 Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </header>
+
+                <section class="p-4 content-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1 class="h3 fw-bold text-white mb-0">📊 Reports Dashboard</h1>
+                        <div class="text-white">
+                            <small id="currentDateTime"></small>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Cards -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-3">
+                            <div class="stats-card text-center">
+                                <div class="h3 fw-bold mb-1" id="totalReports">1,247</div>
+                                <div class="small">Total Reports</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card text-center">
+                                <div class="h3 fw-bold mb-1" id="monthlyReports">89</div>
+                                <div class="small">This Month</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card text-center">
+                                <div class="h3 fw-bold mb-1" id="pendingReports">12</div>
+                                <div class="small">Pending</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card text-center">
+                                <div class="h3 fw-bold mb-1" id="completedReports">98.3%</div>
+                                <div class="small">Completion Rate</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Report Type Cards -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <div class="report-icon text-primary">📋</div>
+                                    <h5 class="card-title">Survey Reports</h5>
+                                    <p class="card-text text-muted">Generate detailed reports on survey activities and customer feedback analysis</p>
+                                    <div class="mb-3">
+                                        <span class="badge bg-primary">24 Active</span>
+                                        <span class="badge bg-success">156 Completed</span>
+                                    </div>
+                                    <button class="btn btn-outline-primary pulse" onclick="generateReport('survey')">View Reports</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <div class="report-icon text-success">📊</div>
+                                    <h5 class="card-title">Work Order Reports</h5>
+                                    <p class="card-text text-muted">Detailed analysis of work order completion rates and technician performance</p>
+                                    <div class="mb-3">
+                                        <span class="badge bg-warning">8 In Progress</span>
+                                        <span class="badge bg-success">342 Completed</span>
+                                    </div>
+                                    <button class="btn btn-outline-success pulse" onclick="generateReport('workorder')">View Reports</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <div class="report-icon text-warning">🔧</div>
+                                    <h5 class="card-title">BW Modification</h5>
+                                    <p class="card-text text-muted">Bandwidth change request statistics and network optimization insights</p>
+                                    <div class="mb-3">
+                                        <span class="badge bg-info">15 Pending</span>
+                                        <span class="badge bg-success">87 Approved</span>
+                                    </div>
+                                    <button class="btn btn-outline-warning pulse" onclick="generateReport('bandwidth')">View Reports</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Report Generator -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">🎯 Custom Report Generator</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="reportForm">
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Report Type</label>
+                                        <select class="form-select" id="reportType" required>
+                                            <option value="">Select report type</option>
+                                            <option value="survey">Survey Summary</option>
+                                            <option value="workorder">Work Order Status</option>
+                                            <option value="bandwidth">BW Modification</option>
+                                            <option value="customer">Customer Acquisition</option>
+                                            <option value="revenue">Revenue Analysis</option>
+                                            <option value="performance">Performance Metrics</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Date From</label>
+                                        <input type="date" class="form-control" id="dateFrom" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Date To</label>
+                                        <input type="date" class="form-control" id="dateTo" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">NTTN</label>
+                                        <select class="form-select" id="nttn">
+                                            <option value="">All NTTN</option>
+                                            <option value="bahon">Bahon</option>
+                                            <option value="foh">FoH</option>
+                                            <option value="summit">Summit</option>
+                                            <option value="drik">Drik</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Category</label>
+                                        <select class="form-select" id="category">
+                                            <option value="">All Categories</option>
+                                            <option value="techzone">TechZone</option>
+                                            <option value="fiberhub">FiberHub</option>
+                                            <option value="netcable">NetCable</option>
+                                            <option value="comwave">ComWave</option>
+                                            <option value="retail">Retail</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Output Format</label>
+                                        <select class="form-select" id="outputFormat">
+                                            <option value="pdf">PDF Report</option>
+                                            <option value="excel">Excel Spreadsheet</option>
+                                            <option value="csv">CSV Data</option>
+                                            <option value="html">HTML Document</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <button type="reset" class="btn btn-outline-secondary me-2">🔄 Reset</button>
+                                    <button type="button" class="btn btn-info me-2" onclick="previewReport()">👁️ Preview</button>
+                                    <button type="submit" class="btn btn-primary">📥 Generate Report</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Loading Spinner -->
+                    <div class="loading-spinner" id="loadingSpinner"></div>
+
+                    <!-- Report Preview -->
+                    <div class="report-preview" id="reportPreview">
+                        <h6 class="text-white mb-3">📋 Report Preview</h6>
+                        <div class="chart-container">
+                            <canvas id="previewChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Recent Reports -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">📄 Recent Reports</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Report Name</th>
+                                            <th>Type</th>
+                                            <th>Generated</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recentReportsTable">
+                                        <tr>
+                                            <td>Monthly Survey Analysis</td>
+                                            <td><span class="badge bg-primary">Survey</span></td>
+                                            <td>2 hours ago</td>
+                                            <td><span class="badge bg-success">Completed</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary me-1">📥 Download</button>
+                                                <button class="btn btn-sm btn-outline-secondary">👁️ View</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Work Order Performance</td>
+                                            <td><span class="badge bg-success">Work Order</span></td>
+                                            <td>5 hours ago</td>
+                                            <td><span class="badge bg-success">Completed</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary me-1">📥 Download</button>
+                                                <button class="btn btn-sm btn-outline-secondary">👁️ View</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>BW Modification Trends</td>
+                                            <td><span class="badge bg-warning">Bandwidth</span></td>
+                                            <td>1 day ago</td>
+                                            <td><span class="badge bg-warning">Processing</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-secondary" disabled>⏳ Processing</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            setDefaultDates();
+            animateStats();
+        });
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            };
+            document.getElementById('currentDateTime').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        function setDefaultDates() {
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+            
+            document.getElementById('dateFrom').value = thirtyDaysAgo.toISOString().split('T')[0];
+            document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+        }
+
+        function animateStats() {
+            const stats = ['totalReports', 'monthlyReports', 'pendingReports'];
+            stats.forEach(stat => {
+                const element = document.getElementById(stat);
+                if (element && stat !== 'completedReports') {
+                    const finalValue = parseInt(element.textContent.replace(',', ''));
+                    let currentValue = 0;
+                    const increment = Math.ceil(finalValue / 50);
+                    
+                    const timer = setInterval(() => {
+                        currentValue += increment;
+                        if (currentValue >= finalValue) {
+                            currentValue = finalValue;
+                            clearInterval(timer);
+                        }
+                        element.textContent = currentValue.toLocaleString();
+                    }, 50);
+                }
+            });
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            sidebar.classList.toggle('show');
+            backdrop.classList.toggle('show');
+        }
+
+        function showSection(section) {
+            // Update active navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Show notification
+            showNotification(`Navigating to ${section.charAt(0).toUpperCase() + section.slice(1)}...`, 'info');
+        }
+
+        function generateReport(type) {
+            showNotification(`Generating ${type} report...`, 'info');
+            
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            loadingSpinner.style.display = 'block';
+            
+            // Simulate report generation
+            setTimeout(() => {
+                loadingSpinner.style.display = 'none';
+                showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} report generated successfully!`, 'success');
+                
+                // Add to recent reports
+                addRecentReport(type);
+            }, 2000);
+        }
+
+        function previewReport() {
+            const reportType = document.getElementById('reportType').value;
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+            
+            if (!reportType || !dateFrom || !dateTo) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            const preview = document.getElementById('reportPreview');
+            preview.style.display = 'block';
+            
+            // Simulate chart generation
+            generatePreviewChart(reportType);
+            
+            showNotification('Report preview generated', 'success');
+        }
+
+        function generatePreviewChart(type) {
+            const canvas = document.getElementById('previewChart');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Set canvas size
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            // Generate mock data visualization
+            const data = generateMockData(type);
+            drawChart(ctx, data, canvas.width, canvas.height);
+        }
+
+        function generateMockData(type) {
+            const types = {
+                'survey': [65, 78, 85, 92, 88, 95, 102],
+                'workorder': [45, 52, 48, 61, 55, 67, 73],
+                'bandwidth': [25, 32, 28, 35, 42, 38, 45],
+                'customer': [150, 180, 165, 200, 185, 220, 240],
+                'revenue': [2500, 2800, 3200, 2900, 3100, 3500, 3800],
+                'performance': [85, 88, 82, 90, 87, 92, 95]
+            };
+            
+            return types[type] || types['survey'];
+        }
+
+        function drawChart(ctx, data, width, height) {
+            const padding = 40;
+            const chartWidth = width - 2 * padding;
+            const chartHeight = height - 2 * padding;
+            
+            // Draw background
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw grid lines
+            ctx.strokeStyle = '#e9ecef';
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (i * chartHeight / 5);
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+            
+            // Draw chart line
+            ctx.strokeStyle = '#4a69bd';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            const max = Math.max(...data);
+            const stepX = chartWidth / (data.length - 1);
+            
+            data.forEach((value, index) => {
+                const x = padding + index * stepX;
+                const y = padding + chartHeight - (value / max) * chartHeight;
+                
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            
+            ctx.stroke();
+            
+            // Draw data points
+            ctx.fillStyle = '#4a69bd';
+            data.forEach((value, index) => {
+                const x = padding + index * stepX;
+                const y = padding + chartHeight - (value / max) * chartHeight;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+            
+            // Draw title
+            ctx.fillStyle = '#333';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Report Data Visualization', width / 2, 25);
+        }
+
+        function addRecentReport(type) {
+            const table = document.getElementById('recentReportsTable');
+            const row = table.insertRow(0);
+            
+            const typeNames = {
+                'survey': 'Survey Analysis',
+                'workorder': 'Work Order Report',
+                'bandwidth': 'BW Modification Report'
+            };
+            
+            const typeBadges = {
+                'survey': 'primary',
+                'workorder': 'success',
+                'bandwidth': 'warning'
+            };
+            
+            row.innerHTML = `
+                <td>${typeNames[type] || 'Custom Report'}</td>
+                <td><span class="badge bg-${typeBadges[type] || 'secondary'}">${type.charAt(0).toUpperCase() + type.slice(1)}</span></td>
+                <td>Just now</td>
+                <td><span class="badge bg-success">Completed</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary me-1">📥 Download</button>
+                    <button class="btn btn-sm btn-outline-secondary">👁️ View</button>
+                </td>
+            `;
+        }
+
+        // Handle form submission
+        document.getElementById('reportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const reportType = document.getElementById('reportType').value;
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+            const outputFormat = document.getElementById('outputFormat').value;
+            
+            if (!reportType || !dateFrom || !dateTo) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            // Validate date range
+            if (new Date(dateFrom) > new Date(dateTo)) {
+                showNotification('Start date cannot be after end date', 'error');
+                return;
+            }
+            
+            showNotification('Generating custom report...', 'info');
+            
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            loadingSpinner.style.display = 'block';
+            
+            // Simulate report generation with progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 10;
+                showNotification(`Generating report... ${progress}%`, 'info');
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    loadingSpinner.style.display = 'none';
+                    
+                    // Simulate successful generation
+                    showNotification(`Custom ${reportType} report generated successfully as ${outputFormat.toUpperCase()}!`, 'success');
+                    
+                    // Add to recent reports
+                    addCustomReport(reportType, dateFrom, dateTo, outputFormat);
+                    
+                    // Reset form
+                    this.reset();
+                    setDefaultDates();
+                    document.getElementById('reportPreview').style.display = 'none';
+                }
+            }, 300);
+        });
+
+        function addCustomReport(type, dateFrom, dateTo, format) {
+            const table = document.getElementById('recentReportsTable');
+            const row = table.insertRow(0);
+            
+            const typeNames = {
+                'survey': 'Survey Summary',
+                'workorder': 'Work Order Status',
+                'bandwidth': 'BW Modification',
+                'customer': 'Customer Acquisition',
+                'revenue': 'Revenue Analysis',
+                'performance': 'Performance Metrics'
+            };
+            
+            const typeBadges = {
+                'survey': 'primary',
+                'workorder': 'success',
+                'bandwidth': 'warning',
+                'customer': 'info',
+                'revenue': 'danger',
+                'performance': 'dark'
+            };
+            
+            const formatFromTo = new Date(dateFrom).toLocaleDateString() + ' - ' + new Date(dateTo).toLocaleDateString();
+            
+            row.innerHTML = `
+                <td>${typeNames[type] || 'Custom Report'} (${formatFromTo})</td>
+                <td><span class="badge bg-${typeBadges[type] || 'secondary'}">${type.charAt(0).toUpperCase() + type.slice(1)}</span></td>
+                <td>Just now</td>
+                <td><span class="badge bg-success">Completed</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="downloadReport('${type}', '${format}')">📥 Download ${format.toUpperCase()}</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="viewReport('${type}')">👁️ View</button>
+                </td>
+            `;
+            
+            // Add animation to new row
+            row.style.backgroundColor = '#d4edda';
+            setTimeout(() => {
+                row.style.backgroundColor = '';
+            }, 2000);
+        }
+
+        function downloadReport(type, format) {
+            showNotification(`Downloading ${type} report in ${format.toUpperCase()} format...`, 'info');
+            
+            // Simulate file download
+            setTimeout(() => {
+                showNotification(`Report downloaded successfully!`, 'success');
+            }, 1500);
+        }
+
+        function viewReport(type) {
+            showNotification(`Opening ${type} report in new window...`, 'info');
+            
+            // Simulate opening report viewer
+            setTimeout(() => {
+                showNotification(`Report viewer opened`, 'success');
+            }, 1000);
+        }
+
+        function showNotification(message, type) {
+            // Remove existing notifications
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification alert alert-${getBootstrapClass(type)} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = `
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                border-radius: 10px;
+            `;
+            
+            notification.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <span class="me-2">${getIcon(type)}</span>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        function getBootstrapClass(type) {
+            const classes = {
+                'success': 'success',
+                'error': 'danger',
+                'warning': 'warning',
+                'info': 'info'
+            };
+            return classes[type] || 'info';
+        }
+
+        function getIcon(type) {
+            const icons = {
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️',
+                'info': 'ℹ️'
+            };
+            return icons[type] || 'ℹ️';
+        }
+
+        // Add click handlers for sidebar backdrop
+        document.getElementById('sidebarBackdrop').addEventListener('click', function () {
+            toggleSidebar();
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + G for generate report
+            if (e.ctrlKey && e.key === 'g') {
+                e.preventDefault();
+                document.getElementById('reportForm').dispatchEvent(new Event('submit'));
+            }
+            
+            // Ctrl + P for preview
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                previewReport();
+            }
+            
+            // Ctrl + R for reset
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                document.getElementById('reportForm').reset();
+                setDefaultDates();
+                showNotification('Form reset', 'info');
+            }
+        });
+
+        // Add responsive chart resizing
+        window.addEventListener('resize', function() {
+            const preview = document.getElementById('reportPreview');
+            if (preview.style.display === 'block') {
+                const reportType = document.getElementById('reportType').value;
+                if (reportType) {
+                    setTimeout(() => generatePreviewChart(reportType), 100);
+                }
+            }
+        });
+
+        // Add real-time validation
+        document.getElementById('reportType').addEventListener('change', function() {
+            updateFormValidation();
+        });
+
+        document.getElementById('dateFrom').addEventListener('change', function() {
+            updateFormValidation();
+        });
+
+        document.getElementById('dateTo').addEventListener('change', function() {
+            updateFormValidation();
+        });
+
+        function updateFormValidation() {
+            const reportType = document.getElementById('reportType').value;
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+            
+            const submitButton = document.querySelector('button[type="submit"]');
+            const previewButton = document.querySelector('button[onclick="previewReport()"]');
+            
+            if (reportType && dateFrom && dateTo) {
+                submitButton.disabled = false;
+                previewButton.disabled = false;
+                submitButton.classList.remove('btn-secondary');
+                submitButton.classList.add('btn-primary');
+            } else {
+                submitButton.disabled = true;
+                previewButton.disabled = true;
+                submitButton.classList.remove('btn-primary');
+                submitButton.classList.add('btn-secondary');
+            }
+        }
+
+        // Initialize form validation
+        updateFormValidation();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

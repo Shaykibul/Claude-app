@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings | Earth Telecommunications</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            height: 100vh;
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            border-right: 3px solid #4a69bd;
+            box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-content {
+            min-height: 100vh;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .content-body {
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        .nav-link {
+            border-radius: 10px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #4a69bd, #5f7cdb);
+            box-shadow: 0 5px 15px rgba(74, 105, 189, 0.4);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px 15px 0 0;
+            border-bottom: 2px solid #4a69bd;
+        }
+
+        .btn {
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4a69bd, #5f7cdb);
+            border: none;
+            box-shadow: 0 5px 15px rgba(74, 105, 189, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(74, 105, 189, 0.6);
+        }
+
+        .settings-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover .settings-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #4a69bd;
+            box-shadow: 0 0 0 0.2rem rgba(74, 105, 189, 0.25);
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            transform: rotate(45deg);
+        }
+
+        .loading-spinner {
+            display: none;
+            margin: 20px auto;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e9ecef;
+            border-top: 4px solid #4a69bd;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .settings-preview {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .chart-container {
+            height: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 767.98px) {
+            .sidebar {
+                position: fixed;
+                z-index: 1040;
+                width: 280px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .sidebar-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1039;
+                display: none;
+            }
+
+            .sidebar-backdrop.show {
+                display: block;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .settings-section {
+            margin-bottom: 30px;
+        }
+
+        .settings-section-title {
+            border-bottom: 2px solid #4a69bd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: #4a69bd;
+        }
+
+        .settings-option {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .settings-option:hover {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-option-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .settings-option-description {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #4a69bd, #5f7cdb);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .badge-settings {
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <aside class="col-md-3 col-lg-2 text-white d-flex flex-column p-3 sidebar" id="sidebar">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="text-center w-100">
+                        <div class="bg-primary bg-opacity-20 p-3 rounded-circle d-inline-block mb-2">
+                            <span class="fs-2">🌍</span>
+                        </div>
+                        <h6 class="text-white">Earth Telecom</h6>
+                    </div>
+                    <button class="btn-close btn-close-white d-md-none" onclick="toggleSidebar()"></button>
+                </div>
+                <nav class="nav flex-column">
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="Dashboard.html" onclick="showSection('dashboard')">
+                        <span class="me-2">🏠</span> Dashboard
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="Reports.html" onclick="showSection('reports')">
+                        <span class="me-2">📊</span> Reports
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="Survey.html" onclick="showSection('survey')">
+                        <span class="me-2">📝</span> Survey
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="workorder.html" onclick="showSection('workorder')">
+                        <span class="me-2">📋</span> Work Order
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="bwmodify.html" onclick="showSection('bwmodify')">
+                        <span class="me-2">🔧</span> BW Modify
+                    </a>
+                    <a class="nav-link active text-white d-flex align-items-center mb-2" href="settings.html" onclick="showSection('settings')">
+                        <span class="me-2">⚙️</span> Settings
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center" href="#" onclick="showSection('users')">
+                        <span class="me-2">👥</span> Users
+                    </a>
+                </nav>
+            </aside>
+
+            <div class="col-md-9 col-lg-10 main-content">
+                <header class="border-bottom p-3 bg-white bg-opacity-90 backdrop-filter-blur sticky-top">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="btn btn-dark d-md-none" onclick="toggleSidebar()">
+                            ☰ Menu
+                        </button>
+                        <div class="dropdown ms-auto">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userMenuButton"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                👤 Welcome! Mr/Mrs UserName
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
+                                <li class="dropdown-item-text"><strong>Mr. User Name</strong><br><small>username@test.com.bd</small></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">🔐 Change Password</a></li>
+                                <li><a class="dropdown-item" href="#">🔓 Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </header>
+
+                <section class="p-4 content-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1 class="h3 fw-bold text-white mb-0">⚙️ System Settings</h1>
+                        <div class="text-white">
+                            <small id="currentDateTime"></small>
+                        </div>
+                    </div>
+
+                    <!-- Settings Overview Cards -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-3">
+                            <div class="stats-card text-center">
+                                <div class="h3 fw-bold mb-1" id="totalSettings">42</div>
+                                <div class="small">Configurable Options</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card text-center">
+                                <div class="h3 fw-bold mb-1" id="modifiedSettings">8</div>
+                                <div class="small">Modified Settings</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card text-center">
+                                <div class="h3 fw-bold mb-1" id="defaultSettings">34</div>
+                                <div class="small">Default Values</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card text-center">
+                                <div class="h3 fw-bold mb-1" id="lastUpdated">2h</div>
+                                <div class="small">Last Updated</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Sections -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">🔧 General Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="settings-section">
+                                <h6 class="settings-section-title">System Configuration</h6>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">System Timezone</div>
+                                    <div class="settings-option-description">Set the default timezone for all system operations and reporting</div>
+                                    <select class="form-select" id="systemTimezone">
+                                        <option value="UTC">UTC</option>
+                                        <option value="Asia/Dhaka" selected>Asia/Dhaka (GMT+6)</option>
+                                        <option value="America/New_York">America/New York (GMT-5)</option>
+                                        <option value="Europe/London">Europe/London (GMT+0)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">Date Format</div>
+                                    <div class="settings-option-description">Select how dates should be displayed throughout the system</div>
+                                    <select class="form-select" id="dateFormat">
+                                        <option value="YYYY-MM-DD">YYYY-MM-DD (2023-07-15)</option>
+                                        <option value="DD/MM/YYYY" selected>DD/MM/YYYY (15/07/2023)</option>
+                                        <option value="MM/DD/YYYY">MM/DD/YYYY (07/15/2023)</option>
+                                        <option value="DD-MMM-YYYY">DD-MMM-YYYY (15-Jul-2023)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">System Maintenance Mode</div>
+                                    <div class="settings-option-description">Enable to restrict access to administrators only during maintenance</div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="maintenanceMode">
+                                        <label class="form-check-label" for="maintenanceMode">Toggle Maintenance Mode</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-section">
+                                <h6 class="settings-section-title">User Interface</h6>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">Theme Selection</div>
+                                    <div class="settings-option-description">Choose between light, dark or system default theme</div>
+                                    <select class="form-select" id="themeSelection">
+                                        <option value="light">Light Theme</option>
+                                        <option value="dark">Dark Theme</option>
+                                        <option value="system" selected>System Default</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">Dashboard Layout</div>
+                                    <div class="settings-option-description">Select your preferred dashboard layout style</div>
+                                    <select class="form-select" id="dashboardLayout">
+                                        <option value="compact">Compact</option>
+                                        <option value="spacious" selected>Spacious</option>
+                                        <option value="minimal">Minimal</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">Enable Animations</div>
+                                    <div class="settings-option-description">Toggle UI animations and transitions for better performance</div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="enableAnimations" checked>
+                                        <label class="form-check-label" for="enableAnimations">Enable UI Animations</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notification Settings -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">🔔 Notification Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="settings-section">
+                                <h6 class="settings-section-title">Email Notifications</h6>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">System Alerts</div>
+                                    <div class="settings-option-description">Receive email notifications for system alerts and important updates</div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="emailSystemAlerts" checked>
+                                        <label class="form-check-label" for="emailSystemAlerts">Enable System Alert Emails</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">Daily Summary</div>
+                                    <div class="settings-option-description">Receive a daily summary of activities and reports</div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="emailDailySummary">
+                                        <label class="form-check-label" for="emailDailySummary">Enable Daily Summary Emails</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">Weekly Reports</div>
+                                    <div class="settings-option-description">Receive comprehensive weekly reports every Monday</div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="emailWeeklyReports" checked>
+                                        <label class="form-check-label" for="emailWeeklyReports">Enable Weekly Report Emails</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-section">
+                                <h6 class="settings-section-title">In-App Notifications</h6>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">Work Order Updates</div>
+                                    <div class="settings-option-description">Get notified when work orders are assigned or updated</div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="notifyWorkOrders" checked>
+                                        <label class="form-check-label" for="notifyWorkOrders">Enable Work Order Notifications</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">Survey Completion</div>
+                                    <div class="settings-option-description">Get notified when surveys are completed by field agents</div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="notifySurveyCompletion" checked>
+                                        <label class="form-check-label" for="notifySurveyCompletion">Enable Survey Notifications</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">Bandwidth Changes</div>
+                                    <div class="settings-option-description">Get notified when bandwidth modification requests are made</div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="notifyBandwidthChanges">
+                                        <label class="form-check-label" for="notifyBandwidthChanges">Enable Bandwidth Change Notifications</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Settings -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">⚡ Advanced Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning">
+                                <strong>⚠️ Warning:</strong> These settings affect core system functionality. Modify with caution.
+                            </div>
+                            
+                            <div class="settings-section">
+                                <h6 class="settings-section-title">API Configuration</h6>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">API Access Key</div>
+                                    <div class="settings-option-description">Your unique key for accessing system APIs</div>
+                                    <div class="input-group mb-3">
+                                        <input type="password" class="form-control" id="apiKey" value="sk_test_51N...">
+                                        <button class="btn btn-outline-secondary" type="button" id="showApiKey">👁️ Show</button>
+                                        <button class="btn btn-outline-primary" type="button" id="regenerateApiKey">🔄 Regenerate</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">API Rate Limiting</div>
+                                    <div class="settings-option-description">Maximum API requests per minute (higher values may impact performance)</div>
+                                    <input type="range" class="form-range" min="10" max="500" step="10" id="apiRateLimit" value="100">
+                                    <div class="d-flex justify-content-between">
+                                        <small>10 req/min</small>
+                                        <small id="rateLimitValue">100 req/min</small>
+                                        <small>500 req/min</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">Enable API Caching</div>
+                                    <div class="settings-option-description">Improve performance by caching API responses (may show stale data)</div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="enableApiCaching" checked>
+                                        <label class="form-check-label" for="enableApiCaching">Enable API Response Caching</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-section">
+                                <h6 class="settings-section-title">Database Settings</h6>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">Backup Frequency</div>
+                                    <div class="settings-option-description">How often system backups should be automatically created</div>
+                                    <select class="form-select" id="backupFrequency">
+                                        <option value="daily">Daily</option>
+                                        <option value="weekly" selected>Weekly</option>
+                                        <option value="monthly">Monthly</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">Backup Retention</div>
+                                    <div class="settings-option-description">How many backups to keep before deleting older ones</div>
+                                    <select class="form-select" id="backupRetention">
+                                        <option value="7">7 days</option>
+                                        <option value="14">14 days</option>
+                                        <option value="30" selected>30 days</option>
+                                        <option value="90">90 days</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="settings-option">
+                                    <div class="settings-option-title">Enable Query Logging</div>
+                                    <div class="settings-option-description">Log all database queries for debugging (may impact performance)</div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="enableQueryLogging">
+                                        <label class="form-check-label" for="enableQueryLogging">Enable Database Query Logging</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Actions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">💾 Save Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="confirmChanges">
+                                        <label class="form-check-label" for="confirmChanges">
+                                            I confirm these changes will affect system behavior
+                                        </label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-outline-secondary me-2" id="resetSettings">🔄 Reset to Defaults</button>
+                                    <button type="button" class="btn btn-primary" id="saveSettings" disabled>💾 Save All Changes</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            loadSettings();
+            setupEventListeners();
+        });
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            };
+            document.getElementById('currentDateTime').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            sidebar.classList.toggle('show');
+            backdrop.classList.toggle('show');
+        }
+
+        function showSection(section) {
+            // Update active navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Show notification
+            showNotification(`Navigating to ${section.charAt(0).toUpperCase() + section.slice(1)}...`, 'info');
+        }
+
+        function loadSettings() {
+            // Simulate loading settings from server
+            showNotification('Loading system settings...', 'info');
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                // These would normally come from an API
+                document.getElementById('systemTimezone').value = 'Asia/Dhaka';
+                document.getElementById('dateFormat').value = 'DD/MM/YYYY';
+                document.getElementById('maintenanceMode').checked = false;
+                document.getElementById('themeSelection').value = 'system';
+                document.getElementById('dashboardLayout').value = 'spacious';
+                document.getElementById('enableAnimations').checked = true;
+                
+                // Notification settings
+                document.getElementById('emailSystemAlerts').checked = true;
+                document.getElementById('emailDailySummary').checked = false;
+                document.getElementById('emailWeeklyReports').checked = true;
+                document.getElementById('notifyWorkOrders').checked = true;
+                document.getElementById('notifySurveyCompletion').checked = true;
+                document.getElementById('notifyBandwidthChanges').checked = false;
+                
+                // Advanced settings
+                document.getElementById('apiKey').value = 'sk_test_51N...';
+                document.getElementById('apiRateLimit').value = 100;
+                document.getElementById('enableApiCaching').checked = true;
+                document.getElementById('backupFrequency').value = 'weekly';
+                document.getElementById('backupRetention').value = '30';
+                document.getElementById('enableQueryLogging').checked = false;
+                
+                showNotification('Settings loaded successfully', 'success');
+            }, 1000);
+        }
+
+        function setupEventListeners() {
+            // Show/hide API key
+            document.getElementById('showApiKey').addEventListener('click', function() {
+                const apiKeyInput = document.getElementById('apiKey');
+                if (apiKeyInput.type === 'password') {
+                    apiKeyInput.type = 'text';
+                    this.textContent = '🙈 Hide';
+                } else {
+                    apiKeyInput.type = 'password';
+                    this.textContent = '👁️ Show';
+                }
+            });
+            
+            // Regenerate API key
+            document.getElementById('regenerateApiKey').addEventListener('click', function() {
+                if (confirm('Are you sure you want to regenerate your API key? This will invalidate the current key.')) {
+                    showNotification('Generating new API key...', 'info');
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        const newKey = 'sk_test_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                        document.getElementById('apiKey').value = newKey;
+                        showNotification('API key regenerated successfully', 'success');
+                    }, 1500);
+                }
+            });
+            
+            // Update rate limit display
+            document.getElementById('apiRateLimit').addEventListener('input', function() {
+                document.getElementById('rateLimitValue').textContent = this.value + ' req/min';
+            });
+            
+            // Enable save button when changes are confirmed
+            document.getElementById('confirmChanges').addEventListener('change', function() {
+                document.getElementById('saveSettings').disabled = !this.checked;
+            });
+            
+            // Reset to defaults
+            document.getElementById('resetSettings').addEventListener('click', function() {
+                if (confirm('Are you sure you want to reset all settings to their default values?')) {
+                    showNotification('Resetting settings to defaults...', 'info');
+                    
+                    // Simulate reset
+                    setTimeout(() => {
+                        loadSettings();
+                        document.getElementById('confirmChanges').checked = false;
+                        document.getElementById('saveSettings').disabled = true;
+                        showNotification('Settings reset to defaults', 'success');
+                    }, 1000);
+                }
+            });
+            
+            // Save settings
+            document.getElementById('saveSettings').addEventListener('click', function() {
+                const settings = {
+                    systemTimezone: document.getElementById('systemTimezone').value,
+                    dateFormat: document.getElementById('dateFormat').value,
+                    maintenanceMode: document.getElementById('maintenanceMode').checked,
+                    themeSelection: document.getElementById('themeSelection').value,
+                    dashboardLayout: document.getElementById('dashboardLayout').value,
+                    enableAnimations: document.getElementById('enableAnimations').checked,
+                    emailSystemAlerts: document.getElementById('emailSystemAlerts').checked,
+                    emailDailySummary: document.getElementById('emailDailySummary').checked,
+                    emailWeeklyReports: document.getElementById('emailWeeklyReports').checked,
+                    notifyWorkOrders: document.getElementById('notifyWorkOrders').checked,
+                    notifySurveyCompletion: document.getElementById('notifySurveyCompletion').checked,
+                    notifyBandwidthChanges: document.getElementById('notifyBandwidthChanges').checked,
+                    apiKey: document.getElementById('apiKey').value,
+                    apiRateLimit: document.getElementById('apiRateLimit').value,
+                    enableApiCaching: document.getElementById('enableApiCaching').checked,
+                    backupFrequency: document.getElementById('backupFrequency').value,
+                    backupRetention: document.getElementById('backupRetention').value,
+                    enableQueryLogging: document.getElementById('enableQueryLogging').checked
+                };
+                
+                showNotification('Saving settings...', 'info');
+                
+                // Here you would normally send settings to the server
+                // Simulate API call
+                setTimeout(() => {
+                    console.log('Settings saved:', settings);
+                    showNotification('Settings saved successfully', 'success');
+                }, 1500);
+            });
+        }
+
+        function showNotification(message, type) {
+            // Remove existing notifications
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification alert alert-${getBootstrapClass(type)} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = `
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                border-radius: 10px;
+            `;
+            
+            notification.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <span class="me-2">${getIcon(type)}</span>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        function getBootstrapClass(type) {
+            const classes = {
+                'success': 'success',
+                'error': 'danger',
+                'warning': 'warning',
+                'info': 'info'
+            };
+            return classes[type] || 'info';
+        }
+
+        function getIcon(type) {
+            const icons = {
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️',
+                'info': 'ℹ️'
+            };
+            return icons[type] || 'ℹ️';
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

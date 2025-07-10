@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BW Modify | Earth Telecommunications</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            height: 100vh;
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            border-right: 3px solid #4a69bd;
+            box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-content {
+            min-height: 100vh;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .content-body {
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        .nav-link {
+            border-radius: 10px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #4a69bd, #5f7cdb);
+            box-shadow: 0 5px 15px rgba(74, 105, 189, 0.4);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px 15px 0 0;
+            border-bottom: 2px solid #4a69bd;
+        }
+
+        .btn {
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4a69bd, #5f7cdb);
+            border: none;
+            box-shadow: 0 5px 15px rgba(74, 105, 189, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(74, 105, 189, 0.6);
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            transform: rotate(45deg);
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #4a69bd;
+            box-shadow: 0 0 0 0.2rem rgba(74, 105, 189, 0.25);
+        }
+
+        .loading-spinner {
+            display: none;
+            margin: 20px auto;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e9ecef;
+            border-top: 4px solid #4a69bd;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .badge {
+            border-radius: 10px;
+            padding: 5px 10px;
+            font-weight: 500;
+        }
+
+        .badge-pending {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .badge-approved {
+            background-color: #198754;
+            color: white;
+        }
+
+        .badge-rejected {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .badge-in-progress {
+            background-color: #0dcaf0;
+            color: black;
+        }
+
+        .badge-completed {
+            background-color: #6610f2;
+            color: white;
+        }
+
+        .badge-upgrade {
+            background-color: #20c997;
+            color: white;
+        }
+
+        .badge-downgrade {
+            background-color: #fd7e14;
+            color: white;
+        }
+
+        @media (max-width: 767.98px) {
+            .sidebar {
+                position: fixed;
+                z-index: 1040;
+                width: 280px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .sidebar-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1039;
+                display: none;
+            }
+
+            .sidebar-backdrop.show {
+                display: block;
+            }
+        }
+
+        /* Multi-step form styles */
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .step {
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+        .step-number {
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+        .step.active .step-number {
+            background-color: #4a69bd;
+            color: white;
+        }
+        .step.completed .step-number {
+            background-color: #198754;
+            color: white;
+        }
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 60%;
+            width: 80%;
+            height: 2px;
+            background-color: #e9ecef;
+            z-index: -1;
+        }
+        .step.active:not(:last-child)::after,
+        .step.completed:not(:last-child)::after {
+            background-color: #4a69bd;
+        }
+        .form-step {
+            display: none;
+        }
+        .form-step.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <aside class="col-md-3 col-lg-2 text-white d-flex flex-column p-3 sidebar" id="sidebar">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="text-center w-100">
+                        <div class="bg-primary bg-opacity-20 p-3 rounded-circle d-inline-block mb-2">
+                            <span class="fs-2">🌍</span>
+                        </div>
+                        <h6 class="text-white">Earth Telecom</h6>
+                    </div>
+                    <button class="btn-close btn-close-white d-md-none" onclick="toggleSidebar()"></button>
+                </div>
+                <nav class="nav flex-column">
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="Dashboard.html">
+                        <span class="me-2">🏠</span> Dashboard
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="reports.html">
+                        <span class="me-2">📊</span> Reports
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="survey.html">
+                        <span class="me-2">📝</span> Survey
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="workorder.html">
+                        <span class="me-2">📋</span> Work Order
+                    </a>
+                    <a class="nav-link active text-white d-flex align-items-center mb-2" href="bwmodify.html">
+                        <span class="me-2">🔧</span> BW Modify
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="settings.html">
+                        <span class="me-2">⚙️</span> Settings
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center" href="users.html">
+                        <span class="me-2">👥</span> Users
+                    </a>
+                </nav>
+            </aside>
+
+            <div class="col-md-9 col-lg-10 main-content">
+                <header class="border-bottom p-3 bg-white bg-opacity-90 backdrop-filter-blur sticky-top">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="btn btn-dark d-md-none" onclick="toggleSidebar()">
+                            ☰ Menu
+                        </button>
+                        <div class="dropdown ms-auto">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userMenuButton"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                👤 Welcome! Mr/Mrs UserName
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
+                                <li class="dropdown-item-text"><strong>Mr. User Name</strong><br><small>username@test.com.bd</small></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="change-password.html">🔐 Change Password</a></li>
+                                <li><a class="dropdown-item" href="logout.html">🔓 Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </header>
+
+                <section class="p-4 content-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1 class="h3 fw-bold text-white mb-0">🔧 Bandwidth Modification</h1>
+                        <div class="text-white">
+                            <small id="currentDateTime"></small>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Cards -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-3">
+                            <div class="stats-card text-center">
+                                <div class="h3 fw-bold mb-1" id="totalRequests">0</div>
+                                <div class="small">Total Requests</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card text-center">
+                                <div class="h3 fw-bold mb-1" id="pendingRequests">0</div>
+                                <div class="small">Pending</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card text-center">
+                                <div class="h3 fw-bold mb-1" id="approvedRequests">0</div>
+                                <div class="small">Approved</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card text-center">
+                                <div class="h3 fw-bold mb-1" id="completedRequests">0</div>
+                                <div class="small">Completed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Card -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Search Filter</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="filterForm">
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Request ID</label>
+                                        <input type="text" class="form-control" id="filterRequestId" placeholder="Enter ID">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Customer ID</label>
+                                        <input type="text" class="form-control" id="filterCustomerId" placeholder="Enter customer ID">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Status</label>
+                                        <select class="form-select" id="filterStatus">
+                                            <option value="">All</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="approved">Approved</option>
+                                            <option value="rejected">Rejected</option>
+                                            <option value="in-progress">In Progress</option>
+                                            <option value="completed">Completed</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Date Range</label>
+                                        <input type="date" class="form-control" id="filterDate">
+                                    </div>
+                                    <div class="col-12 text-end">
+                                        <button type="reset" class="btn btn-outline-secondary me-2">Reset</button>
+                                        <button type="submit" class="btn btn-primary">Search</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- BW Requests Table -->
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Bandwidth Modification Requests</h5>
+                            <div>
+                                <button class="btn btn-sm btn-outline-secondary me-2" id="exportBtn">
+                                    <i class="fas fa-download me-1"></i> Export
+                                </button>
+                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#newRequestModal">
+                                    <i class="fas fa-plus me-1"></i> New Request
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="bwRequestsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Request ID</th>
+                                            <th>Customer</th>
+                                            <th>Current BW</th>
+                                            <th>Requested BW</th>
+                                            <th>Type</th>
+                                            <th>Status</th>
+                                            <th>Request Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bwRequestsTableBody">
+                                        <!-- Requests will be loaded here dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <nav aria-label="Page navigation" class="mt-3">
+                                <ul class="pagination justify-content-center" id="pagination">
+                                    <!-- Pagination will be loaded here dynamically -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Request Modal -->
+    <div class="modal fade" id="newRequestModal" tabindex="-1" aria-labelledby="newRequestModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newRequestModalLabel">New Bandwidth Modification Request</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Step Indicator -->
+                    <div class="step-indicator">
+                        <div class="step active" id="step1-indicator">
+                            <div class="step-number">1</div>
+                            <div class="step-title">Basic Info</div>
+                        </div>
+                        <div class="step" id="step2-indicator">
+                            <div class="step-number">2</div>
+                            <div class="step-title">Client Details</div>
+                        </div>
+                        <div class="step" id="step3-indicator">
+                            <div class="step-number">3</div>
+                            <div class="step-title">BW Update</div>
+                        </div>
+                    </div>
+
+                    <!-- Step 1: Basic Info & NTTN Details -->
+                    <div class="form-step active" id="step1">
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">Basic Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Request Date <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="requestDate" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Request Type <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="requestType" required>
+                                            <option value="">Select</option>
+                                            <option value="upgrade">Upgrade</option>
+                                            <option value="downgrade">Downgrade</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Requested By <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="requestedBy" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Department <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="department" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Priority <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="priority" required>
+                                            <option value="">Select</option>
+                                            <option value="high">High</option>
+                                            <option value="medium">Medium</option>
+                                            <option value="low">Low</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Expected Date <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="expectedDate" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">NTTN Details</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">NTTN <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="nttn" required>
+                                            <option value="">Select</option>
+                                            <option value="bahon">Bahon</option>
+                                            <option value="foh">FoH</option>
+                                            <option value="summit">Summit</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Circuit ID <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="circuitId" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Client Details -->
+                    <div class="form-step" id="step2">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">Client Details</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Client Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="clientName" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Client ID <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="clientId" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Contact Person <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="contactPerson" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="contactNumber" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" id="email" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Billing Address <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="billingAddress" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Bandwidth Update -->
+                    <div class="form-step" id="step3">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">Bandwidth Update</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Current Bandwidth <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="currentBw" required>
+                                            <select class="form-select" id="currentBwUnit" style="max-width: 100px;">
+                                                <option value="mbps">Mbps</option>
+                                                <option value="gbps">Gbps</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Requested Bandwidth <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="requestedBw" required>
+                                            <select class="form-select" id="requestedBwUnit" style="max-width: 100px;">
+                                                <option value="mbps">Mbps</option>
+                                                <option value="gbps">Gbps</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Current Package <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="currentPackage" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Requested Package <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="requestedPackage" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Reason for Modification <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="reason" rows="3" required></textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Additional Notes</label>
+                                        <textarea class="form-control" id="notes" rows="2"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-outline-primary" id="prevBtn" style="display: none;">Previous</button>
+                    <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
+                    <button type="button" class="btn btn-success" id="submitBtn" style="display: none;">Submit Request</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Request Modal -->
+    <div class="modal fade" id="viewRequestModal" tabindex="-1" aria-labelledby="viewRequestModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewRequestModalLabel">Bandwidth Request Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="requestDetails">
+                    <!-- Request details will be loaded here dynamically -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="approveBtn">Approve</button>
+                    <button type="button" class="btn btn-danger" id="rejectBtn">Reject</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sample data for bandwidth requests
+        const bwRequestsData = [
+            {
+                id: 'BW-2023-001',
+                customer: 'C-10025 (John Doe)',
+                currentBw: '10 Mbps',
+                requestedBw: '20 Mbps',
+                type: 'upgrade',
+                status: 'pending',
+                requestDate: '15 Jul 2023',
+                nttn: 'Bahon',
+                circuitId: 'CKT-1001',
+                contactPerson: 'John Doe',
+                contactNumber: '0123456789',
+                reason: 'Customer needs higher bandwidth for video conferencing'
+            },
+            {
+                id: 'BW-2023-002',
+                customer: 'C-10042 (Jane Smith)',
+                currentBw: '50 Mbps',
+                requestedBw: '30 Mbps',
+                type: 'downgrade',
+                status: 'approved',
+                requestDate: '10 Jul 2023',
+                nttn: 'FoH',
+                circuitId: 'CKT-1002',
+                contactPerson: 'Jane Smith',
+                contactNumber: '0123456788',
+                reason: 'Downgrading due to cost optimization'
+            },
+            {
+                id: 'BW-2023-003',
+                customer: 'C-10067 (Acme Corp)',
+                currentBw: '100 Mbps',
+                requestedBw: '200 Mbps',
+                type: 'upgrade',
+                status: 'in-progress',
+                requestDate: '05 Jul 2023',
+                nttn: 'Summit',
+                circuitId: 'CKT-1003',
+                contactPerson: 'Michael Johnson',
+                contactNumber: '0123456787',
+                reason: 'Business expansion requires more bandwidth'
+            },
+            {
+                id: 'BW-2023-004',
+                customer: 'C-10089 (XYZ Ltd)',
+                currentBw: '30 Mbps',
+                requestedBw: '20 Mbps',
+                type: 'downgrade',
+                status: 'completed',
+                requestDate: '01 Jul 2023',
+                nttn: 'Bahon',
+                circuitId: 'CKT-1004',
+                contactPerson: 'Sarah Williams',
+                contactNumber: '0123456786',
+                reason: 'Reducing bandwidth as per new requirements'
+            }
+        ];
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            loadBwRequests();
+            updateStats();
+            
+            // Initialize multi-step form
+            initMultiStepForm();
+            
+            // Event listeners
+            document.getElementById('filterForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                filterBwRequests();
+            });
+            
+            document.getElementById('exportBtn').addEventListener('click', exportBwRequests);
+            document.getElementById('approveBtn').addEventListener('click', approveRequest);
+            document.getElementById('rejectBtn').addEventListener('click', rejectRequest);
+        });
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            };
+            document.getElementById('currentDateTime').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            sidebar.classList.toggle('show');
+            backdrop.classList.toggle('show');
+        }
+
+        function loadBwRequests(filteredData = bwRequestsData) {
+            const tableBody = document.getElementById('bwRequestsTableBody');
+            tableBody.innerHTML = '';
+            
+            filteredData.forEach(request => {
+                const row = document.createElement('tr');
+                
+                // Determine badge classes based on status and type
+                let statusBadgeClass = '';
+                let statusText = '';
+                switch(request.status) {
+                    case 'pending':
+                        statusBadgeClass = 'badge-pending';
+                        statusText = 'Pending';
+                        break;
+                    case 'approved':
+                        statusBadgeClass = 'badge-approved';
+                        statusText = 'Approved';
+                        break;
+                    case 'rejected':
+                        statusBadgeClass = 'badge-rejected';
+                        statusText = 'Rejected';
+                        break;
+                    case 'in-progress':
+                        statusBadgeClass = 'badge-in-progress';
+                        statusText = 'In Progress';
+                        break;
+                    case 'completed':
+                        statusBadgeClass = 'badge-completed';
+                        statusText = 'Completed';
+                        break;
+                }
+                
+                const typeBadgeClass = request.type === 'upgrade' ? 'badge-upgrade' : 'badge-downgrade';
+                const typeText = request.type === 'upgrade' ? 'Upgrade' : 'Downgrade';
+                
+                row.innerHTML = `
+                    <td>${request.id}</td>
+                    <td>${request.customer}</td>
+                    <td>${request.currentBw}</td>
+                    <td>${request.requestedBw}</td>
+                    <td><span class="badge ${typeBadgeClass}">${typeText}</span></td>
+                    <td><span class="badge ${statusBadgeClass}">${statusText}</span></td>
+                    <td>${request.requestDate}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary view-btn" data-id="${request.id}">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Add event listeners to view buttons
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const requestId = this.getAttribute('data-id');
+                    viewRequest(requestId);
+                });
+            });
+        }
+
+        function filterBwRequests() {
+            const requestId = document.getElementById('filterRequestId').value.toLowerCase();
+            const customerId = document.getElementById('filterCustomerId').value.toLowerCase();
+            const status = document.getElementById('filterStatus').value;
+            const date = document.getElementById('filterDate').value;
+            
+            const filteredData = bwRequestsData.filter(request => {
+                return (requestId === '' || request.id.toLowerCase().includes(requestId)) &&
+                       (customerId === '' || request.customer.toLowerCase().includes(customerId)) &&
+                       (status === '' || request.status === status) &&
+                       (date === '' || request.requestDate.includes(date));
+            });
+            
+            loadBwRequests(filteredData);
+            updateStats(filteredData);
+        }
+
+        function updateStats(data = bwRequestsData) {
+            document.getElementById('totalRequests').textContent = data.length;
+            document.getElementById('pendingRequests').textContent = data.filter(r => r.status === 'pending').length;
+            document.getElementById('approvedRequests').textContent = data.filter(r => r.status === 'approved').length;
+            document.getElementById('completedRequests').textContent = data.filter(r => r.status === 'completed').length;
+            
+            // Animate the numbers
+            animateNumber('totalRequests', data.length);
+            animateNumber('pendingRequests', data.filter(r => r.status === 'pending').length);
+            animateNumber('approvedRequests', data.filter(r => r.status === 'approved').length);
+            animateNumber('completedRequests', data.filter(r => r.status === 'completed').length);
+        }
+
+        function animateNumber(elementId, finalValue) {
+            const element = document.getElementById(elementId);
+            let current = 0;
+            const increment = Math.ceil(finalValue / 20);
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= finalValue) {
+                    element.textContent = finalValue;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = current;
+                }
+            }, 50);
+        }
+
+        function initMultiStepForm() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            const steps = document.querySelectorAll('.form-step');
+            const stepIndicators = document.querySelectorAll('.step');
+            let currentStep = 0;
+            
+            function showStep(stepIndex) {
+                steps.forEach((step, index) => {
+                    step.classList.toggle('active', index === stepIndex);
+                });
+                
+                stepIndicators.forEach((indicator, index) => {
+                                        indicator.classList.remove('active', 'completed');
+                    if (index < stepIndex) {
+                        indicator.classList.add('completed');
+                    } else if (index === stepIndex) {
+                        indicator.classList.add('active');
+                    }
+                });
+                
+                // Update button visibility
+                prevBtn.style.display = stepIndex === 0 ? 'none' : 'inline-block';
+                nextBtn.style.display = stepIndex === steps.length - 1 ? 'none' : 'inline-block';
+                submitBtn.style.display = stepIndex === steps.length - 1 ? 'inline-block' : 'none';
+            }
+            
+            nextBtn.addEventListener('click', function() {
+                // Validate current step before proceeding
+                if (validateStep(currentStep)) {
+                    currentStep++;
+                    showStep(currentStep);
+                }
+            });
+            
+            prevBtn.addEventListener('click', function() {
+                currentStep--;
+                showStep(currentStep);
+            });
+            
+            submitBtn.addEventListener('click', function() {
+                if (validateStep(currentStep)) {
+                    submitRequest();
+                }
+            });
+            
+            // Initialize first step
+            showStep(0);
+        }
+        
+        function validateStep(stepIndex) {
+            // Simple validation - in a real app, you'd want more robust validation
+            if (stepIndex === 0) {
+                const requiredFields = ['requestDate', 'requestType', 'requestedBy', 'department', 'priority', 'expectedDate', 'nttn', 'circuitId'];
+                for (const fieldId of requiredFields) {
+                    if (!document.getElementById(fieldId).value) {
+                        alert(`Please fill in all required fields in Step ${stepIndex + 1}`);
+                        return false;
+                    }
+                }
+            } else if (stepIndex === 1) {
+                const requiredFields = ['clientName', 'clientId', 'contactPerson', 'contactNumber', 'email', 'billingAddress'];
+                for (const fieldId of requiredFields) {
+                    if (!document.getElementById(fieldId).value) {
+                        alert(`Please fill in all required fields in Step ${stepIndex + 1}`);
+                        return false;
+                    }
+                }
+            } else if (stepIndex === 2) {
+                const requiredFields = ['currentBw', 'requestedBw', 'currentPackage', 'requestedPackage', 'reason'];
+                for (const fieldId of requiredFields) {
+                    if (!document.getElementById(fieldId).value) {
+                        alert(`Please fill in all required fields in Step ${stepIndex + 1}`);
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        
+        function submitRequest() {
+            // Show loading spinner
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+            submitBtn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(function() {
+                // Create new request object
+                const newRequest = {
+                    id: 'BW-' + new Date().getFullYear() + '-' + (bwRequestsData.length + 1).toString().padStart(3, '0'),
+                    customer: document.getElementById('clientName').value + ' (' + document.getElementById('contactPerson').value + ')',
+                    currentBw: document.getElementById('currentBw').value + ' ' + document.getElementById('currentBwUnit').value,
+                    requestedBw: document.getElementById('requestedBw').value + ' ' + document.getElementById('requestedBwUnit').value,
+                    type: document.getElementById('requestType').value,
+                    status: 'pending',
+                    requestDate: new Date(document.getElementById('requestDate').value).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+                    nttn: document.getElementById('nttn').value,
+                    circuitId: document.getElementById('circuitId').value,
+                    contactPerson: document.getElementById('contactPerson').value,
+                    contactNumber: document.getElementById('contactNumber').value,
+                    reason: document.getElementById('reason').value
+                };
+                
+                // Add to data array
+                bwRequestsData.unshift(newRequest);
+                
+                // Reset form
+                document.getElementById('newRequestModal').querySelector('form').reset();
+                
+                // Hide modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('newRequestModal'));
+                modal.hide();
+                
+                // Reload requests
+                loadBwRequests();
+                updateStats();
+                
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                // Show success message
+                alert('Request submitted successfully!');
+            }, 1500);
+        }
+        
+        function viewRequest(requestId) {
+            const request = bwRequestsData.find(r => r.id === requestId);
+            if (!request) return;
+            
+            const modal = new bootstrap.Modal(document.getElementById('viewRequestModal'));
+            const modalTitle = document.getElementById('viewRequestModalLabel');
+            const modalBody = document.getElementById('requestDetails');
+            
+            modalTitle.textContent = `Request Details: ${requestId}`;
+            
+            // Determine badge classes
+            let statusBadgeClass = '';
+            let statusText = '';
+            switch(request.status) {
+                case 'pending':
+                    statusBadgeClass = 'badge-pending';
+                    statusText = 'Pending';
+                    break;
+                case 'approved':
+                    statusBadgeClass = 'badge-approved';
+                    statusText = 'Approved';
+                    break;
+                case 'rejected':
+                    statusBadgeClass = 'badge-rejected';
+                    statusText = 'Rejected';
+                    break;
+                case 'in-progress':
+                    statusBadgeClass = 'badge-in-progress';
+                    statusText = 'In Progress';
+                    break;
+                case 'completed':
+                    statusBadgeClass = 'badge-completed';
+                    statusText = 'Completed';
+                    break;
+            }
+            
+            const typeBadgeClass = request.type === 'upgrade' ? 'badge-upgrade' : 'badge-downgrade';
+            const typeText = request.type === 'upgrade' ? 'Upgrade' : 'Downgrade';
+            
+            modalBody.innerHTML = `
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6>Request Information</h6>
+                        <p><strong>ID:</strong> ${request.id}</p>
+                        <p><strong>Date:</strong> ${request.requestDate}</p>
+                        <p><strong>Type:</strong> <span class="badge ${typeBadgeClass}">${typeText}</span></p>
+                        <p><strong>Status:</strong> <span class="badge ${statusBadgeClass}">${statusText}</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Customer Information</h6>
+                        <p><strong>Customer:</strong> ${request.customer}</p>
+                        <p><strong>Contact Person:</strong> ${request.contactPerson}</p>
+                        <p><strong>Contact Number:</strong> ${request.contactNumber}</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6>Bandwidth Details</h6>
+                        <p><strong>Current Bandwidth:</strong> ${request.currentBw}</p>
+                        <p><strong>Requested Bandwidth:</strong> ${request.requestedBw}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Technical Details</h6>
+                        <p><strong>NTTN:</strong> ${request.nttn}</p>
+                        <p><strong>Circuit ID:</strong> ${request.circuitId}</p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <h6>Reason for Modification</h6>
+                    <p>${request.reason}</p>
+                </div>
+            `;
+            
+            // Show/hide action buttons based on status
+            const approveBtn = document.getElementById('approveBtn');
+            const rejectBtn = document.getElementById('rejectBtn');
+            
+            if (request.status === 'pending') {
+                approveBtn.style.display = 'inline-block';
+                rejectBtn.style.display = 'inline-block';
+            } else {
+                approveBtn.style.display = 'none';
+                rejectBtn.style.display = 'none';
+            }
+            
+            // Set data attributes for action buttons
+            approveBtn.setAttribute('data-id', requestId);
+            rejectBtn.setAttribute('data-id', requestId);
+            
+            modal.show();
+        }
+        
+        function approveRequest() {
+            const requestId = this.getAttribute('data-id');
+            const request = bwRequestsData.find(r => r.id === requestId);
+            
+            if (request) {
+                request.status = 'approved';
+                loadBwRequests();
+                updateStats();
+                
+                const modal = bootstrap.Modal.getInstance(document.getElementById('viewRequestModal'));
+                modal.hide();
+                
+                alert('Request approved successfully!');
+            }
+        }
+        
+        function rejectRequest() {
+            const requestId = this.getAttribute('data-id');
+            const request = bwRequestsData.find(r => r.id === requestId);
+            
+            if (request) {
+                request.status = 'rejected';
+                loadBwRequests();
+                updateStats();
+                
+                const modal = bootstrap.Modal.getInstance(document.getElementById('viewRequestModal'));
+                modal.hide();
+                
+                alert('Request rejected!');
+            }
+        }
+        
+        function exportBwRequests() {
+            // In a real application, this would export the data to CSV/Excel
+            alert('Export functionality would be implemented here. Data would be exported to CSV/Excel format.');
+        }
+    </script>
+</body>
+</html>

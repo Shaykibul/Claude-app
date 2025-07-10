@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Work Order | Earth Telecommunications</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            height: 100vh;
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            border-right: 3px solid #4a69bd;
+            box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-content {
+            min-height: 100vh;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .content-body {
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        .nav-link {
+            border-radius: 10px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #4a69bd, #5f7cdb);
+            box-shadow: 0 5px 15px rgba(74, 105, 189, 0.4);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px 15px 0 0;
+            border-bottom: 2px solid #4a69bd;
+        }
+
+        .btn {
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4a69bd, #5f7cdb);
+            border: none;
+            box-shadow: 0 5px 15px rgba(74, 105, 189, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(74, 105, 189, 0.6);
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            transform: rotate(45deg);
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #4a69bd;
+            box-shadow: 0 0 0 0.2rem rgba(74, 105, 189, 0.25);
+        }
+
+        .loading-spinner {
+            display: none;
+            margin: 20px auto;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e9ecef;
+            border-top: 4px solid #4a69bd;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .badge {
+            border-radius: 10px;
+            padding: 5px 10px;
+            font-weight: 500;
+        }
+
+        .badge-pending {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .badge-assigned {
+            background-color: #0dcaf0;
+            color: black;
+        }
+
+        .badge-in-progress {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .badge-completed {
+            background-color: #198754;
+            color: white;
+        }
+
+        .badge-cancelled {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .badge-high {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .badge-medium {
+            background-color: #fd7e14;
+            color: white;
+        }
+
+        .badge-low {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        @media (max-width: 767.98px) {
+            .sidebar {
+                position: fixed;
+                z-index: 1040;
+                width: 280px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .sidebar-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1039;
+                display: none;
+            }
+
+            .sidebar-backdrop.show {
+                display: block;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <aside class="col-md-3 col-lg-2 text-white d-flex flex-column p-3 sidebar" id="sidebar">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="text-center w-100">
+                        <div class="bg-primary bg-opacity-20 p-3 rounded-circle d-inline-block mb-2">
+                            <span class="fs-2">🌍</span>
+                        </div>
+                        <h6 class="text-white">Earth Telecom</h6>
+                    </div>
+                    <button class="btn-close btn-close-white d-md-none" onclick="toggleSidebar()"></button>
+                </div>
+                <nav class="nav flex-column">
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="Dashboard.html">
+                        <span class="me-2">🏠</span> Dashboard
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="reports.html">
+                        <span class="me-2">📊</span> Reports
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="survey.html">
+                        <span class="me-2">📝</span> Survey
+                    </a>
+                    <a class="nav-link active text-white d-flex align-items-center mb-2" href="workorder.html">
+                        <span class="me-2">📋</span> Work Order
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="bwmodify.html">
+                        <span class="me-2">🔧</span> BW Modify
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="settings.html">
+                        <span class="me-2">⚙️</span> Settings
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center" href="users.html">
+                        <span class="me-2">👥</span> Users
+                    </a>
+                </nav>
+            </aside>
+
+            <div class="col-md-9 col-lg-10 main-content">
+                <header class="border-bottom p-3 bg-white bg-opacity-90 backdrop-filter-blur sticky-top">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="btn btn-dark d-md-none" onclick="toggleSidebar()">
+                            ☰ Menu
+                        </button>
+                        <div class="dropdown ms-auto">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userMenuButton"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                👤 Welcome! Mr/Mrs UserName
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
+                                <li class="dropdown-item-text"><strong>Mr. User Name</strong><br><small>username@test.com.bd</small></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="change-password.html">🔐 Change Password</a></li>
+                                <li><a class="dropdown-item" href="logout.html">🔓 Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </header>
+
+                <section class="p-4 content-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1 class="h3 fw-bold text-white mb-0">📋 Work Orders</h1>
+                        <div class="text-white">
+                            <small id="currentDateTime"></small>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Cards -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-3">
+                            <div class="stats-card text-center">
+                                <div class="h3 fw-bold mb-1" id="totalWorkOrders">0</div>
+                                <div class="small">Total Work Orders</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card text-center">
+                                <div class="h3 fw-bold mb-1" id="pendingWorkOrders">0</div>
+                                <div class="small">Pending</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card text-center">
+                                <div class="h3 fw-bold mb-1" id="inProgressWorkOrders">0</div>
+                                <div class="small">In Progress</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card text-center">
+                                <div class="h3 fw-bold mb-1" id="completedWorkOrders">0</div>
+                                <div class="small">Completed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Card -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Filter Work Orders</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="filterForm">
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Work Order ID</label>
+                                        <input type="text" class="form-control" id="filterWoId" placeholder="WO-12345">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Status</label>
+                                        <select class="form-select" id="filterStatus">
+                                            <option value="">All Statuses</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="assigned">Assigned</option>
+                                            <option value="in-progress">In Progress</option>
+                                            <option value="completed">Completed</option>
+                                            <option value="cancelled">Cancelled</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Priority</label>
+                                        <select class="form-select" id="filterPriority">
+                                            <option value="">All Priorities</option>
+                                            <option value="high">High</option>
+                                            <option value="medium">Medium</option>
+                                            <option value="low">Low</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Date Range</label>
+                                        <input type="date" class="form-control" id="filterDate">
+                                    </div>
+                                    <div class="col-12 text-end">
+                                        <button type="reset" class="btn btn-outline-secondary me-2">Reset</button>
+                                        <button type="submit" class="btn btn-primary">Apply Filter</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Work Orders Table -->
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Recent Work Orders</h5>
+                            <div>
+                                <button class="btn btn-sm btn-outline-secondary me-2" id="exportBtn">
+                                    <i class="fas fa-download me-1"></i> Export
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary me-2" id="printBtn">
+                                    <i class="fas fa-print me-1"></i> Print
+                                </button>
+                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createWorkOrderModal">
+                                    <i class="fas fa-plus me-1"></i> Create New
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="workOrdersTable">
+                                    <thead>
+                                        <tr>
+                                            <th>WO ID</th>
+                                            <th>Customer</th>
+                                            <th>Type</th>
+                                            <th>Priority</th>
+                                            <th>Assigned To</th>
+                                            <th>Status</th>
+                                            <th>Created</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="workOrdersTableBody">
+                                        <!-- Work orders will be loaded here dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <nav aria-label="Page navigation" class="mt-3">
+                                <ul class="pagination justify-content-center" id="pagination">
+                                    <!-- Pagination will be loaded here dynamically -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Work Order Modal -->
+    <div class="modal fade" id="createWorkOrderModal" tabindex="-1" aria-labelledby="createWorkOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createWorkOrderModalLabel">Create New Work Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createWorkOrderForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Customer <span class="text-danger">*</span></label>
+                                <select class="form-select" id="customerSelect" required>
+                                    <option value="">Select Customer</option>
+                                    <!-- Customers will be loaded dynamically -->
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Work Order Type <span class="text-danger">*</span></label>
+                                <select class="form-select" id="typeSelect" required>
+                                    <option value="">Select Type</option>
+                                    <option value="installation">Installation</option>
+                                    <option value="repair">Repair</option>
+                                    <option value="upgrade">Upgrade</option>
+                                    <option value="maintenance">Maintenance</option>
+                                    <option value="inspection">Inspection</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Priority <span class="text-danger">*</span></label>
+                                <select class="form-select" id="prioritySelect" required>
+                                    <option value="">Select Priority</option>
+                                    <option value="high">High</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Assigned To</label>
+                                <select class="form-select" id="assignedToSelect">
+                                    <option value="">Select Team</option>
+                                    <option value="tech-team-a">Tech Team A</option>
+                                    <option value="tech-team-b">Tech Team B</option>
+                                    <option value="tech-team-c">Tech Team C</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Description <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="descriptionTextarea" rows="3" placeholder="Enter work order details" required></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Scheduled Date</label>
+                                <input type="date" class="form-control" id="scheduledDate">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Estimated Duration (hours)</label>
+                                <input type="number" class="form-control" id="estimatedDuration" placeholder="2">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="createWorkOrderBtn">Create Work Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Work Order Modal -->
+    <div class="modal fade" id="viewWorkOrderModal" tabindex="-1" aria-labelledby="viewWorkOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewWorkOrderModalLabel">Work Order Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="workOrderDetails">
+                    <!-- Work order details will be loaded here dynamically -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sample data for work orders
+        const workOrdersData = [
+            {
+                id: 'WO-2023-001',
+                customer: 'John Doe (C-10025)',
+                type: 'Installation',
+                priority: 'high',
+                assignedTo: 'Tech Team A',
+                status: 'in-progress',
+                created: '15 Jul 2023',
+                description: 'Install new fiber connection for customer',
+                scheduledDate: '20 Jul 2023',
+                estimatedDuration: 4
+            },
+            {
+                id: 'WO-2023-002',
+                customer: 'Acme Corp (C-10078)',
+                type: 'Repair',
+                priority: 'medium',
+                assignedTo: 'Tech Team B',
+                status: 'completed',
+                created: '10 Jul 2023',
+                description: 'Repair damaged fiber line',
+                scheduledDate: '12 Jul 2023',
+                estimatedDuration: 2
+            },
+            {
+                id: 'WO-2023-003',
+                customer: 'Jane Smith (C-10042)',
+                type: 'Upgrade',
+                priority: 'low',
+                assignedTo: '',
+                status: 'pending',
+                created: '05 Jul 2023',
+                description: 'Upgrade bandwidth to 100Mbps',
+                scheduledDate: '',
+                estimatedDuration: 1
+            },
+            {
+                id: 'WO-2023-004',
+                customer: 'XYZ Ltd (C-10112)',
+                type: 'Maintenance',
+                priority: 'high',
+                assignedTo: 'Tech Team C',
+                status: 'assigned',
+                created: '01 Jul 2023',
+                description: 'Routine maintenance check',
+                scheduledDate: '05 Jul 2023',
+                estimatedDuration: 3
+            }
+        ];
+
+        // Sample data for customers
+        const customersData = [
+            { id: 'C-10025', name: 'John Doe' },
+            { id: 'C-10042', name: 'Jane Smith' },
+            { id: 'C-10078', name: 'Acme Corp' },
+            { id: 'C-10112', name: 'XYZ Ltd' }
+        ];
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            loadWorkOrders();
+            loadCustomers();
+            updateStats();
+            
+            // Event listeners
+            document.getElementById('filterForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                filterWorkOrders();
+            });
+            
+            document.getElementById('createWorkOrderBtn').addEventListener('click', createWorkOrder);
+            document.getElementById('exportBtn').addEventListener('click', exportWorkOrders);
+            document.getElementById('printBtn').addEventListener('click', printWorkOrders);
+        });
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            };
+            document.getElementById('currentDateTime').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            sidebar.classList.toggle('show');
+            backdrop.classList.toggle('show');
+        }
+
+        function loadWorkOrders(filteredData = workOrdersData) {
+            const tableBody = document.getElementById('workOrdersTableBody');
+            tableBody.innerHTML = '';
+            
+            filteredData.forEach(order => {
+                const row = document.createElement('tr');
+                
+                // Determine badge class based on status
+                let statusBadgeClass = '';
+                let statusText = '';
+                switch(order.status) {
+                    case 'pending':
+                        statusBadgeClass = 'badge-pending';
+                        statusText = 'Pending';
+                        break;
+                    case 'assigned':
+                        statusBadgeClass = 'badge-assigned';
+                        statusText = 'Assigned';
+                        break;
+                    case 'in-progress':
+                        statusBadgeClass = 'badge-in-progress';
+                        statusText = 'In Progress';
+                        break;
+                    case 'completed':
+                        statusBadgeClass = 'badge-completed';
+                        statusText = 'Completed';
+                        break;
+                    case 'cancelled':
+                        statusBadgeClass = 'badge-cancelled';
+                        statusText = 'Cancelled';
+                        break;
+                }
+                
+                // Determine priority badge class
+                let priorityBadgeClass = '';
+                let priorityText = '';
+                switch(order.priority) {
+                    case 'high':
+                        priorityBadgeClass = 'badge-high';
+                        priorityText = 'High';
+                        break;
+                    case 'medium':
+                        priorityBadgeClass = 'badge-medium';
+                        priorityText = 'Medium';
+                        break;
+                    case 'low':
+                        priorityBadgeClass = 'badge-low';
+                        priorityText = 'Low';
+                        break;
+                }
+                
+                row.innerHTML = `
+                    <td>${order.id}</td>
+                    <td>${order.customer}</td>
+                    <td>${order.type}</td>
+                    <td><span class="badge ${priorityBadgeClass}">${priorityText}</span></td>
+                    <td>${order.assignedTo || '-'}</td>
+                    <td><span class="badge ${statusBadgeClass}">${statusText}</span></td>
+                    <td>${order.created}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1 view-btn" data-id="${order.id}" title="View">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary edit-btn" data-id="${order.id}" title="Edit">
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Add event listeners to view buttons
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-id');
+                    viewWorkOrder(orderId);
+                });
+            });
+        }
+
+        function loadCustomers() {
+            const customerSelect = document.getElementById('customerSelect');
+            customerSelect.innerHTML = '<option value="">Select Customer</option>';
+            
+            customersData.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer.id;
+                option.textContent = `${customer.name} (${customer.id})`;
+                customerSelect.appendChild(option);
+            });
+        }
+
+        function filterWorkOrders() {
+            const woId = document.getElementById('filterWoId').value.toLowerCase();
+            const status = document.getElementById('filterStatus').value;
+            const priority = document.getElementById('filterPriority').value;
+            const date = document.getElementById('filterDate').value;
+            
+            const filteredData = workOrdersData.filter(order => {
+                return (woId === '' || order.id.toLowerCase().includes(woId)) &&
+                       (status === '' || order.status === status) &&
+                       (priority === '' || order.priority === priority) &&
+                       (date === '' || order.created.includes(date));
+            });
+            
+            loadWorkOrders(filteredData);
+            updateStats(filteredData);
+        }
+
+        function updateStats(data = workOrdersData) {
+            document.getElementById('totalWorkOrders').textContent = data.length;
+            document.getElementById('pendingWorkOrders').textContent = data.filter(o => o.status === 'pending').length;
+            document.getElementById('inProgressWorkOrders').textContent = data.filter(o => o.status === 'in-progress').length;
+            document.getElementById('completedWorkOrders').textContent = data.filter(o => o.status === 'completed').length;
+            
+            // Animate the numbers
+            animateNumber('totalWorkOrders', data.length);
+            animateNumber('pendingWorkOrders', data.filter(o => o.status === 'pending').length);
+            animateNumber('inProgressWorkOrders', data.filter(o => o.status === 'in-progress').length);
+            animateNumber('completedWorkOrders', data.filter(o => o.status === 'completed').length);
+        }
+
+        function animateNumber(elementId, finalValue) {
+            const element = document.getElementById(elementId);
+            let current = 0;
+            const increment = Math.ceil(finalValue / 20);
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= finalValue) {
+                    element.textContent = finalValue;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = current;
+                }
+            }, 50);
+        }
+
+        function createWorkOrder() {
+            const form = document.getElementById('createWorkOrderForm');
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            const customerSelect = document.getElementById('customerSelect');
+            const customer = customerSelect.options[customerSelect.selectedIndex].text;
+            const type = document.getElementById('typeSelect').value;
+            const priority = document.getElementById('prioritySelect').value;
+            const assignedTo = document.getElementById('assignedToSelect').value;
+            const description = document.getElementById('descriptionTextarea').value;
+            const scheduledDate = document.getElementById('scheduledDate').value;
+            const estimatedDuration = document.getElementById('estimatedDuration').value;
+            
+            // Generate new work order ID
+            const newId = `WO-${new Date().getFullYear()}-${(workOrdersData.length + 1).toString().padStart(3, '0')}`;
+            
+            // Create new work order object
+            const newWorkOrder = {
+                id: newId,
+                customer: customer,
+                type: type.charAt(0).toUpperCase() + type.slice(1),
+                priority: priority,
+                assignedTo: assignedTo ? assignedTo.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') : '',
+                status: assignedTo ? 'assigned' : 'pending',
+                created: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+                description: description,
+                scheduledDate: scheduledDate,
+                estimatedDuration: estimatedDuration
+            };
+            
+            // Add to work orders data
+            workOrdersData.unshift(newWorkOrder);
+            
+            // Reload work orders
+            loadWorkOrders();
+            updateStats();
+            
+            // Close modal and reset form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('createWorkOrderModal'));
+            modal.hide();
+            form.reset();
+            form.classList.remove('was-validated');
+            
+            showNotification('Work order created successfully!', 'success');
+        }
+
+        function viewWorkOrder(orderId) {
+            const order = workOrdersData.find(o => o.id === orderId);
+            if (!order) return;
+            
+            const modalBody = document.getElementById('workOrderDetails');
+            
+            // Determine status and priority text
+            let statusText = '';
+            switch(order.status) {
+                case 'pending': statusText = 'Pending'; break;
+                case 'assigned': statusText = 'Assigned'; break;
+                case 'in-progress': statusText = 'In Progress'; break;
+                case 'completed': statusText = 'Completed'; break;
+                case 'cancelled': statusText = 'Cancelled'; break;
+            }
+            
+            let priorityText = '';
+            switch(order.priority) {
+                case 'high': priorityText = 'High'; break;
+                case 'medium': priorityText = 'Medium'; break;
+                case 'low': priorityText = 'Low'; break;
+            }
+            
+            modalBody.innerHTML = `
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6>Work Order ID</h6>
+                        <p>${order.id}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Status</h6>
+                        <p><span class="badge ${order.status === 'pending' ? 'badge-pending' : 
+                                              order.status === 'assigned' ? 'badge-assigned' : 
+                                              order.status === 'in-progress' ? 'badge-in-progress' : 
+                                              order.status === 'completed' ? 'badge-completed' : 
+                                              'badge-cancelled'}">${statusText}</span></p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6>Customer</h6>
+                        <p>${order.customer}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Type</h6>
+                        <p>${order.type}</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6>Priority</h6>
+                        <p><span class="badge ${order.priority === 'high' ? 'badge-high' : 
+                                              order.priority === 'medium' ? 'badge-medium' : 
+                                              'badge-low'}">${priorityText}</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Assigned To</h6>
+                        <p>${order.assignedTo || 'Not assigned'}</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6>Created Date</h6>
+                        <p>${order.created}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Scheduled Date</h6>
+                        <p>${order.scheduledDate || 'Not scheduled'}</p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <h6>Description</h6>
+                    <p>${order.description}</p>
+                </div>
+                <div class="mb-3">
+                    <h6>Estimated Duration</h6>
+                    <p>${order.estimatedDuration || 'N/A'} hours</p>
+                </div>
+            `;
+            
+            const modal = new bootstrap.Modal(document.getElementById('viewWorkOrderModal'));
+            modal.show();
+        }
+
+        function exportWorkOrders() {
+            showNotification('Exporting work orders...', 'info');
+            // In a real app, this would generate and download a file
+            setTimeout(() => {
+                showNotification('Work orders exported successfully!', 'success');
+            }, 1500);
+        }
+
+        function printWorkOrders() {
+            showNotification('Preparing work orders for printing...', 'info');
+            // In a real app, this would open the print dialog
+            setTimeout(() => {
+                window.print();
+            }, 500);
+        }
+
+        function showNotification(message, type) {
+            // Remove existing notifications
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification alert alert-${getBootstrapClass(type)} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = `
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                border-radius: 10px;
+            `;
+            
+            notification.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <span class="me-2">${getIcon(type)}</span>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        function getBootstrapClass(type) {
+            const classes = {
+                'success': 'success',
+                'error': 'danger',
+                'warning': 'warning',
+                'info': 'info'
+            };
+            return classes[type] || 'info';
+        }
+
+        function getIcon(type) {
+            const icons = {
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️',
+                'info': 'ℹ️'
+            };
+            return icons[type] || 'ℹ️';
+        }
+
+        // Add click handlers for sidebar backdrop
+        document.getElementById('sidebarBackdrop').addEventListener('click', function () {
+            toggleSidebar();
+        });
+    </script>
+</body>
+
+</html>
