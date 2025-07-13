@@ -8,187 +8,300 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        :root {
-            --sidebar-width: 280px;
-            --primary-color: #3a7bd5;
-            --sidebar-bg: #1e293b;
-            --sidebar-active: #334155;
-            --content-bg: #f8fafc;
-            --header-bg: #ffffff;
-            --card-bg: #ffffff;
-        }
-        
         body {
-            background-color: var(--content-bg);
             overflow-x: hidden;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
-        
-        /* Sidebar styles - matching report page */
+
         .sidebar {
-            width: var(--sidebar-width);
             height: 100vh;
-            position: fixed;
-            background-color: var(--sidebar-bg);
-            color: white;
-            transition: all 0.3s;
-            z-index: 1040;
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            border-right: 3px solid #4a69bd;
+            box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3);
         }
-        
-        .sidebar-brand {
-            height: 70px;
+
+        .main-content {
+            min-height: 100vh;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .content-body {
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        .nav-link {
+            border-radius: 10px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #4a69bd, #5f7cdb);
+            box-shadow: 0 5px 15px rgba(74, 105, 189, 0.4);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px 15px 0 0;
+            border-bottom: 2px solid #4a69bd;
+        }
+
+        .btn {
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4a69bd, #5f7cdb);
+            border: none;
+            box-shadow: 0 5px 15px rgba(74, 105, 189, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(74, 105, 189, 0.6);
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #4a69bd;
+            box-shadow: 0 0 0 0.2rem rgba(74, 105, 189, 0.25);
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            transform: rotate(45deg);
+        }
+
+        .loading-spinner {
+            display: none;
+            margin: 20px auto;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e9ecef;
+            border-top: 4px solid #4a69bd;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .report-preview {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .chart-container {
+            height: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        /* Settings Page Specific Styles */
+        .settings-card {
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .settings-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .settings-card .card-header {
+            background: linear-gradient(135deg, #4a69bd, #5f7cdb);
+            color: white;
+            font-weight: 600;
+            padding: 15px 20px;
+            border-bottom: none;
+        }
+
+        .settings-card .card-body {
+            padding: 25px;
+        }
+
+        .settings-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .settings-option:hover {
+            background: rgba(74, 105, 189, 0.1);
+            transform: translateX(5px);
+        }
+
+        .settings-option i {
+            font-size: 1.5rem;
+            margin-right: 15px;
+            color: #4a69bd;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            background-color: var(--sidebar-bg);
+            background: rgba(74, 105, 189, 0.1);
+            border-radius: 50%;
         }
-        
-        .sidebar-brand img {
-            height: 40px;
-            transition: all 0.3s;
-        }
-        
-        .sidebar-nav {
-            padding: 1rem 0;
-        }
-        
-        .nav-link {
-            color: rgba(255,255,255,0.8);
-            border-radius: 6px;
-            margin: 0.25rem 1rem;
-            padding: 0.5rem 1rem;
-            transition: all 0.2s;
-        }
-        
-        .nav-link:hover, .nav-link.active {
-            background-color: var(--sidebar-active);
-            color: white;
-        }
-        
-        .nav-link i {
-            width: 24px;
-            text-align: center;
-            margin-right: 10px;
-        }
-        
-        .sub-menu {
-            padding-left: 1.5rem;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-        
-        .sub-menu.show {
-            max-height: 1000px;
-            transition: max-height 0.5s ease-in;
-        }
-        
-        .sub-menu .nav-link {
-            margin: 0.15rem 0;
-            padding: 0.35rem 1rem;
-            font-size: 0.9rem;
-        }
-        
-        /* Main content - matching report page */
-        .main-content {
-            margin-left: var(--sidebar-width);
-            min-height: 100vh;
-            transition: all 0.3s;
-            background-color: var(--content-bg);
-        }
-        
-        .content-header {
-            height: 70px;
-            background-color: var(--header-bg);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1020;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding: 0 1.5rem;
-        }
-        
-        /* Form styles - matching report page */
-        .form-card {
-            border: none;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 1.5rem;
-            background-color: var(--card-bg);
-        }
-        
-        .form-card .card-header {
-            background-color: var(--card-bg);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+
+        .settings-option .option-title {
             font-weight: 600;
-            padding: 1rem 1.5rem;
-            border-radius: 8px 8px 0 0 !important;
+            margin-bottom: 3px;
         }
-        
-        .form-card .card-body {
-            padding: 1.5rem;
+
+        .settings-option .option-desc {
+            font-size: 0.85rem;
+            color: #6c757d;
         }
-        
-        /* Table styles - matching report page */
+
+        .settings-form {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .data-table {
-            border-radius: 8px;
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 15px;
             overflow: hidden;
-            border: 1px solid #e9ecef;
         }
-        
+
         .data-table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-            padding: 0.75rem 1rem;
-            border-bottom: 2px solid #e9ecef;
-        }
-        
-        .data-table td {
-            padding: 0.75rem 1rem;
-            vertical-align: middle;
-            border-top: 1px solid #e9ecef;
-        }
-        
-        /* Responsive adjustments */
-        @media (max-width: 991.98px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
-            .main-content {
-                margin-left: 0;
-            }
-            
-            .mobile-menu-btn {
-                display: block;
-                position: fixed;
-                top: 15px;
-                left: 15px;
-                z-index: 1050;
-            }
-        }
-        
-        @media (min-width: 992px) {
-            .mobile-menu-btn {
-                display: none !important;
-            }
-        }
-        
-        /* Badge styles - matching report page */
-        .badge {
+            background: linear-gradient(135deg, #4a69bd, #5f7cdb);
+            color: white;
             font-weight: 500;
-            padding: 0.35em 0.65em;
-            font-size: 0.75em;
+            padding: 12px 15px;
         }
-        
-        /* Avatar styles - matching report page */
+
+        .data-table td {
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover td {
+            background: rgba(74, 105, 189, 0.05);
+        }
+
         .avatar {
             width: 36px;
             height: 36px;
@@ -196,526 +309,739 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, #4a69bd, #5f7cdb);
             color: white;
             font-weight: 600;
             font-size: 0.875rem;
         }
-        
-        /* Form elements - matching report page */
-        .form-control, .form-select {
-            border: 1px solid #ced4da;
-            border-radius: 6px;
-            padding: 0.5rem 0.75rem;
-            height: calc(2.25rem + 2px);
+
+        .badge {
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+            border-radius: 10px;
         }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(58, 123, 213, 0.25);
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border-radius: 10px;
+            animation: slideIn 0.3s ease;
         }
-        
-        /* Buttons - matching report page */
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
-        
-        .btn-primary:hover {
-            background-color: #2c6ecb;
-            border-color: #2c6ecb;
+
+        @media (max-width: 767.98px) {
+            .sidebar {
+                position: fixed;
+                z-index: 1040;
+                width: 280px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .sidebar-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1039;
+                display: none;
+            }
+
+            .sidebar-backdrop.show {
+                display: block;
+            }
         }
-        
-        /* Animation for form switching */
-        .form-section {
-            animation: fadeIn 0.3s ease-in-out;
+
+        .pulse {
+            animation: pulse 2s infinite;
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
 
 <body>
-    <!-- Mobile Menu Button -->
-    <button class="btn btn-dark mobile-menu-btn d-lg-none" id="sidebarToggle">
-        <i class="bi bi-list"></i>
-    </button>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-    <!-- Sidebar - matching report page -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-brand">
-            <img src="Earth logo.png" alt="Earth Communication Logo" />
+    <div class="container-fluid">
+        <div class="row">
+            <aside class="col-md-3 col-lg-2 text-white d-flex flex-column p-3 sidebar" id="sidebar">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="text-center w-100">
+                        <div class="bg-primary bg-opacity-20 p-3 rounded-circle d-inline-block mb-2">
+                            <span class="fs-2">🌍</span>
+                        </div>
+                        <h6 class="text-white">Earth Telecom</h6>
+                    </div>
+                    <button class="btn-close btn-close-white d-md-none" onclick="toggleSidebar()"></button>
+                </div>
+                <nav class="nav flex-column">
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="Dashboard.html">
+                        <span class="me-2">🏠</span> Dashboard
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="Reports.html">
+                        <span class="me-2">📊</span> Reports
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="Survey.html">
+                        <span class="me-2">📝</span> Survey
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="workorder.html">
+                        <span class="me-2">📋</span> Work Order
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center mb-2" href="#">
+                        <span class="me-2">🔧</span> BW Modify
+                    </a>
+                    <a class="nav-link active text-white d-flex align-items-center mb-2" href="settings.html">
+                        <span class="me-2">⚙️</span> Settings
+                    </a>
+                    <a class="nav-link text-white d-flex align-items-center" href="#">
+                        <span class="me-2">👥</span> Users
+                    </a>
+                </nav>
+            </aside>
+
+            <div class="col-md-9 col-lg-10 main-content">
+                <header class="border-bottom p-3 bg-white bg-opacity-90 backdrop-filter-blur sticky-top">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="btn btn-dark d-md-none" onclick="toggleSidebar()">
+                            ☰ Menu
+                        </button>
+                        <div class="dropdown ms-auto">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userMenuButton"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="avatar me-2">AU</div>
+                                <span>Admin User</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
+                                <li class="px-3 py-2">
+                                    <div class="fw-bold">Admin User</div>
+                                    <div class="text-muted small">admin@earthtel.com.bd</div>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="change-password.html">
+                                        <i class="bi bi-lock me-2"></i> Change Password
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="logout.html">
+                                        <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </header>
+
+                <section class="p-4 content-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1 class="h3 fw-bold text-white mb-0">⚙️ System Settings</h1>
+                        <div class="text-white">
+                            <small id="currentDateTime"></small>
+                        </div>
+                    </div>
+
+                    <!-- Settings Navigation Cards -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <div class="settings-option" onclick="showForm('aggregatorForm')">
+                                <i class="bi bi-building"></i>
+                                <div>
+                                    <div class="option-title">Aggregator Settings</div>
+                                    <div class="option-desc">Manage network aggregators</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="settings-option" onclick="showForm('clientForm')">
+                                <i class="bi bi-people-fill"></i>
+                                <div>
+                                    <div class="option-title">Client Management</div>
+                                    <div class="option-desc">Add and manage clients</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="settings-option" onclick="showForm('kamForm')">
+                                <i class="bi bi-person-badge"></i>
+                                <div>
+                                    <div class="option-title">KAM Settings</div>
+                                    <div class="option-desc">Key Account Managers</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="settings-option" onclick="showForm('linkTypeForm')">
+                                <i class="bi bi-hdd-network"></i>
+                                <div>
+                                    <div class="option-title">Link Types</div>
+                                    <div class="option-desc">Network connection types</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="settings-option" onclick="showForm('nttnForm')">
+                                <i class="bi bi-router"></i>
+                                <div>
+                                    <div class="option-title">NTTN Providers</div>
+                                    <div class="option-desc">National telecom providers</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="settings-option" onclick="showForm('nttnRateForm')">
+                                <i class="bi bi-cash-stack"></i>
+                                <div>
+                                    <div class="option-title">NTTN Rates</div>
+                                    <div class="option-desc">Bandwidth pricing</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="settings-option" onclick="showForm('rateForm')">
+                                <i class="bi bi-currency-dollar"></i>
+                                <div>
+                                    <div class="option-title">Rate Management</div>
+                                    <div class="option-desc">Service pricing</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="settings-option" onclick="showForm('surveyReasonForm')">
+                                <i class="bi bi-clipboard2-check"></i>
+                                <div>
+                                    <div class="option-title">Survey Reasons</div>
+                                    <div class="option-desc">Customer survey options</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Forms Area -->
+                    <div class="settings-form">
+                        <!-- Aggregator Form -->
+                        <div id="aggregatorForm" class="form-section active">
+                            <div class="card-header d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="mb-0"><i class="bi bi-building me-2"></i> Add Aggregator</h5>
+                            </div>
+                            <form class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Aggregator Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Address <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+                                <div class="col-12 text-end">
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="bi bi-save me-1"></i> Save
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Client Form -->
+                        <div id="clientForm" class="form-section">
+                            <div class="card-header d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="mb-0"><i class="bi bi-people-fill me-2"></i> Add Client</h5>
+                            </div>
+                            <form class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">SBU <span class="text-danger">*</span></label>
+                                    <select class="form-select" required>
+                                        <option selected disabled>Select SBU</option>
+                                        <option>SBU 1</option>
+                                        <option>SBU 2</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">District</label>
+                                    <select class="form-select">
+                                        <option selected disabled>Select District</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Client Name</label>
+                                    <input type="text" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Client ID</label>
+                                    <input type="text" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Division</label>
+                                    <select class="form-select">
+                                        <option selected disabled>Select Division</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Thana</label>
+                                    <select class="form-select">
+                                        <option selected disabled>Select Thana</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Address</label>
+                                    <input type="text" class="form-control">
+                                </div>
+                                <div class="col-12 text-end">
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="bi bi-save me-1"></i> Save
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- KAM Form -->
+                        <div id="kamForm" class="form-section">
+                            <div class="card-header d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i> Add KAM</h5>
+                            </div>
+                            <form class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">KAM Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+                                <div class="col-12 text-end">
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="bi bi-save me-1"></i> Save
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Link Type Form -->
+                        <div id="linkTypeForm" class="form-section">
+                            <div class="card-header d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="mb-0"><i class="bi bi-hdd-network me-2"></i> Add Link Type</h5>
+                            </div>
+                            <form class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Link Type <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+                                <div class="col-12 text-end">
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="bi bi-save me-1"></i> Save
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- NTTN Form -->
+                        <div id="nttnForm" class="form-section">
+                            <div class="card-header d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="mb-0"><i class="bi bi-router me-2"></i> Add NTTN</h5>
+                            </div>
+                            <form class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">NTTN Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Provider ID <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+                                <div class="col-12 text-end">
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="bi bi-save me-1"></i> Save
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- NTTN Rate Form -->
+                        <div id="nttnRateForm" class="form-section">
+                            <div class="card-header d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="mb-0"><i class="bi bi-cash-stack me-2"></i> Add NTTN Rate</h5>
+                            </div>
+                            <form class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">NTTN Provider <span class="text-danger">*</span></label>
+                                    <select class="form-select" required>
+                                        <option selected disabled>Select Provider</option>
+                                        <option>Provider 1</option>
+                                        <option>Provider 2</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">From (MB) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">To (MB) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Rate <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" step="0.01" required>
+                                </div>
+                                <div class="col-12 text-end">
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="bi bi-save me-1"></i> Save
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Rate Form -->
+                        <div id="rateForm" class="form-section">
+                            <div class="card-header d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="mb-0"><i class="bi bi-currency-dollar me-2"></i> Rate List</h5>
+                                <button class="btn btn-sm btn-primary" onclick="showAddRateModal()">
+                                    <i class="bi bi-plus-lg me-1"></i> Add New
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table data-table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Provider</th>
+                                            <th>From</th>
+                                            <th>To</th>
+                                            <th>Rate</th>
+                                            <th>Effective From</th>
+                                            <th>Effective To</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>ABC Ltd.</td>
+                                            <td>100 MB</td>
+                                            <td>500 MB</td>
+                                            <td>5.0</td>
+                                            <td>2024-01-01</td>
+                                            <td>2025-01-01</td>
+                                            <td><span class="badge bg-success">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" title="Delete">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>XYZ Telecom</td>
+                                            <td>501 MB</td>
+                                            <td>1000 MB</td>
+                                            <td>4.5</td>
+                                            <td>2024-01-01</td>
+                                            <td>2025-01-01</td>
+                                            <td><span class="badge bg-success">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" title="Delete">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Survey Reason Form -->
+                        <div id="surveyReasonForm" class="form-section">
+                            <div class="card-header d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="mb-0"><i class="bi bi-clipboard2-check me-2"></i> Survey Reasons</h5>
+                                <button class="btn btn-sm btn-primary" onclick="showAddReasonModal()">
+                                    <i class="bi bi-plus-lg me-1"></i> Add New
+                                </button>
+                            </div>
+                            <form class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Survey Reason <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+                                <div class="col-12 text-end">
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="bi bi-save me-1"></i> Save
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <div class="table-responsive">
+                                <table class="table data-table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Reason</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>New Connection</td>
+                                            <td><span class="badge bg-success">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" title="Delete">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bandwidth Upgrade</td>
+                                            <td><span class="badge bg-success">Active</span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" title="Delete">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </div>
-        
-        <nav class="sidebar-nav">
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="Index.html">
-                        <i class="bi bi-speedometer2"></i> Dashboard
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link active" id="settingsMenuToggle" role="button">
-                        <i class="bi bi-gear"></i> Settings
-                        <i class="bi bi-chevron-down float-end" id="settingsMenuIcon"></i>
-                    </a>
-                    <div class="sub-menu show" id="settingsMenu">
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" onclick="showForm('aggregatorForm')">
-                                    <i class="bi bi-plus-circle"></i> Add Aggregator
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" onclick="showForm('clientForm')">
-                                    <i class="bi bi-plus-circle"></i> Add Client
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" onclick="showForm('kamForm')">
-                                    <i class="bi bi-plus-circle"></i> Add KAM
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" onclick="showForm('linkTypeForm')">
-                                    <i class="bi bi-plus-circle"></i> Add Link Type
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" onclick="showForm('nttnForm')">
-                                    <i class="bi bi-plus-circle"></i> Add NTTN
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" onclick="showForm('nttnRateForm')">
-                                    <i class="bi bi-plus-circle"></i> Add NTTN Rate
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" onclick="showForm('rateForm')">
-                                    <i class="bi bi-plus-circle"></i> Add Rate
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" onclick="showForm('surveyReasonForm')">
-                                    <i class="bi bi-plus-circle"></i> Survey Reason
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link" href="users.html">
-                        <i class="bi bi-people"></i> Users
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    </aside>
+    </div>
 
-    <!-- Main Content - matching report page -->
-    <div class="main-content" id="mainContent">
-        <!-- Header -->
-        <header class="content-header">
-            <div class="dropdown">
-                <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center" type="button" id="userMenuButton" data-bs-toggle="dropdown">
-                    <div class="avatar me-2">AU</div>
-                    <span>Admin User</span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
-                    <li class="px-3 py-2">
-                        <div class="fw-bold">Admin User</div>
-                        <div class="text-muted small">admin@earthtel.com.bd</div>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <a class="dropdown-item" href="change-password.html">
-                            <i class="bi bi-lock me-2"></i> Change Password
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="logout.html">
-                            <i class="bi bi-box-arrow-right me-2"></i> Logout
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </header>
-
-        <!-- Forms Area -->
-        <main class="p-4">
-            <!-- Aggregator Form -->
-            <div id="aggregatorForm" class="form-section">
-                <div class="form-card card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Add Aggregator</h5>
-                    </div>
-                    <div class="card-body">
-                        <form class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Aggregator Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Address <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" required>
-                            </div>
-                            <div class="col-12 text-end">
-                                <button type="submit" class="btn btn-primary px-4">
-                                    <i class="bi bi-save me-1"></i> Save
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+    <!-- Add Rate Modal -->
+    <div class="modal fade" id="addRateModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-currency-dollar me-2"></i> Add New Rate</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            </div>
-
-            <!-- Client Form -->
-            <div id="clientForm" class="form-section d-none">
-                <div class="form-card card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Add Client</h5>
-                    </div>
-                    <div class="card-body">
-                        <form class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">SBU <span class="text-danger">*</span></label>
-                                <select class="form-select" required>
-                                    <option selected disabled>Select SBU</option>
-                                    <option>SBU 1</option>
-                                    <option>SBU 2</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">District</label>
-                                <select class="form-select">
-                                    <option selected disabled>Select District</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Client Name</label>
-                                <input type="text" class="form-control">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Client ID</label>
-                                <input type="text" class="form-control">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Division</label>
-                                <select class="form-select">
-                                    <option selected disabled>Select Division</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Thana</label>
-                                <select class="form-select">
-                                    <option selected disabled>Select Thana</option>
-                                </select>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Address</label>
-                                <input type="text" class="form-control">
-                            </div>
-                            <div class="col-12 text-end">
-                                <button type="submit" class="btn btn-primary px-4">
-                                    <i class="bi bi-save me-1"></i> Save
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- KAM Form -->
-            <div id="kamForm" class="form-section d-none">
-                <div class="form-card card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Add KAM</h5>
-                    </div>
-                    <div class="card-body">
-                        <form class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">KAM Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" required>
-                            </div>
-                            <div class="col-12 text-end">
-                                <button type="submit" class="btn btn-primary px-4">
-                                    <i class="bi bi-save me-1"></i> Save
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Link Type Form -->
-            <div id="linkTypeForm" class="form-section d-none">
-                <div class="form-card card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Add Link Type</h5>
-                    </div>
-                    <div class="card-body">
-                        <form class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Link Type <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" required>
-                            </div>
-                            <div class="col-12 text-end">
-                                <button type="submit" class="btn btn-primary px-4">
-                                    <i class="bi bi-save me-1"></i> Save
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- NTTN Form -->
-            <div id="nttnForm" class="form-section d-none">
-                <div class="form-card card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Add NTTN</h5>
-                    </div>
-                    <div class="card-body">
-                        <form class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">NTTN Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Provider ID <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" required>
-                            </div>
-                            <div class="col-12 text-end">
-                                <button type="submit" class="btn btn-primary px-4">
-                                    <i class="bi bi-save me-1"></i> Save
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- NTTN Rate Form -->
-            <div id="nttnRateForm" class="form-section d-none">
-                <div class="form-card card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Add NTTN Rate</h5>
-                    </div>
-                    <div class="card-body">
-                        <form class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">NTTN Provider <span class="text-danger">*</span></label>
-                                <select class="form-select" required>
-                                    <option selected disabled>Select Provider</option>
-                                    <option>Provider 1</option>
-                                    <option>Provider 2</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">From (MB) <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">To (MB) <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Rate <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" step="0.01" required>
-                            </div>
-                            <div class="col-12 text-end">
-                                <button type="submit" class="btn btn-primary px-4">
-                                    <i class="bi bi-save me-1"></i> Save
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Rate Form -->
-            <div id="rateForm" class="form-section d-none">
-                <div class="form-card card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Rate List</h5>
-                        <button class="btn btn-sm btn-primary">
-                            <i class="bi bi-plus-lg me-1"></i> Add New
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table data-table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Provider</th>
-                                        <th>From</th>
-                                        <th>To</th>
-                                        <th>Rate</th>
-                                        <th>Effective From</th>
-                                        <th>Effective To</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>ABC Ltd.</td>
-                                        <td>100 MB</td>
-                                        <td>500 MB</td>
-                                        <td>5.0</td>
-                                        <td>2024-01-01</td>
-                                        <td>2025-01-01</td>
-                                        <td><span class="badge bg-success">Active</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary me-1" title="Edit">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger" title="Delete">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>XYZ Telecom</td>
-                                        <td>501 MB</td>
-                                        <td>1000 MB</td>
-                                        <td>4.5</td>
-                                        <td>2024-01-01</td>
-                                        <td>2025-01-01</td>
-                                        <td><span class="badge bg-success">Active</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary me-1" title="Edit">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger" title="Delete">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                <div class="modal-body">
+                    <form class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Provider <span class="text-danger">*</span></label>
+                            <select class="form-select" required>
+                                <option selected disabled>Select Provider</option>
+                                <option>ABC Ltd.</option>
+                                <option>XYZ Telecom</option>
+                            </select>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Survey Reason Form -->
-            <div id="surveyReasonForm" class="form-section d-none">
-                <div class="form-card card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Survey Reasons</h5>
-                        <button class="btn btn-sm btn-primary">
-                            <i class="bi bi-plus-lg me-1"></i> Add New
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <form class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label">Survey Reason <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" required>
+                        <div class="col-md-6">
+                            <label class="form-label">Bandwidth Range <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" placeholder="From" required>
+                                <span class="input-group-text">to</span>
+                                <input type="number" class="form-control" placeholder="To" required>
+                                <span class="input-group-text">MB</span>
                             </div>
-                            <div class="col-12 text-end">
-                                <button type="submit" class="btn btn-primary px-4">
-                                    <i class="bi bi-save me-1"></i> Save
-                                </button>
-                            </div>
-                        </form>
-                        
-                        <div class="table-responsive">
-                            <table class="table data-table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Reason</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>New Connection</td>
-                                        <td><span class="badge bg-success">Active</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary me-1" title="Edit">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger" title="Delete">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Bandwidth Upgrade</td>
-                                        <td><span class="badge bg-success">Active</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary me-1" title="Edit">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger" title="Delete">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
                         </div>
-                    </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Rate (BDT) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" step="0.01" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Effective Period <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="date" class="form-control" required>
+                                <span class="input-group-text">to</span>
+                                <input type="date" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Status</label>
+                            <select class="form-select">
+                                <option value="active" selected>Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary">Save Rate</button>
                 </div>
             </div>
-        </main>
+        </div>
+    </div>
+
+    <!-- Add Reason Modal -->
+    <div class="modal fade" id="addReasonModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-clipboard2-check me-2"></i> Add Survey Reason</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label class="form-label">Reason <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select">
+                                <option value="active" selected>Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary">Save Reason</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Toggle sidebar on mobile
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
-            document.getElementById('sidebar').classList.toggle('show');
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            initializeTooltips();
         });
-        
-        // Toggle settings menu in sidebar
-        document.getElementById('settingsMenuToggle').addEventListener('click', function() {
-            const menu = document.getElementById('settingsMenu');
-            const icon = document.getElementById('settingsMenuIcon');
-            
-            menu.classList.toggle('show');
-            
-            if (menu.classList.contains('show')) {
-                icon.classList.remove('bi-chevron-up');
-                icon.classList.add('bi-chevron-down');
-            } else {
-                icon.classList.remove('bi-chevron-down');
-                icon.classList.add('bi-chevron-up');
-            }
-        });
-        
-        // Show selected form
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            };
+            document.getElementById('currentDateTime').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            sidebar.classList.toggle('show');
+            backdrop.classList.toggle('show');
+        }
+
         function showForm(formId) {
             document.querySelectorAll('.form-section').forEach(el => {
-                el.classList.add('d-none');
+                el.classList.remove('active');
             });
-            document.getElementById(formId).classList.remove('d-none');
+            document.getElementById(formId).classList.add('active');
             
             // Close sidebar on mobile after selection
             if (window.innerWidth < 992) {
-                document.getElementById('sidebar').classList.remove('show');
+                toggleSidebar();
             }
+            
+            // Show notification
+            showNotification(`Showing ${formId.replace('Form', '')} settings`, 'info');
         }
-        
-        // Initialize tooltips
-        document.addEventListener('DOMContentLoaded', function() {
+
+        function showAddRateModal() {
+            const modal = new bootstrap.Modal(document.getElementById('addRateModal'));
+            modal.show();
+        }
+
+        function showAddReasonModal() {
+            const modal = new bootstrap.Modal(document.getElementById('addReasonModal'));
+            modal.show();
+        }
+
+        function initializeTooltips() {
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
             tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
+        }
+
+        function showNotification(message, type) {
+            // Remove existing notifications
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
             
-            // Show aggregator form by default
-            showForm('aggregatorForm');
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification alert alert-${getBootstrapClass(type)} alert-dismissible fade show`;
+            
+            notification.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <span class="me-2">${getIcon(type)}</span>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        function getBootstrapClass(type) {
+            const classes = {
+                'success': 'success',
+                'error': 'danger',
+                'warning': 'warning',
+                'info': 'info'
+            };
+            return classes[type] || 'info';
+        }
+
+        function getIcon(type) {
+            const icons = {
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️',
+                'info': 'ℹ️'
+            };
+            return icons[type] || 'ℹ️';
+        }
+
+        // Add click handlers for sidebar backdrop
+        document.getElementById('sidebarBackdrop').addEventListener('click', function () {
+            toggleSidebar();
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + S for save
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                const activeForm = document.querySelector('.form-section.active form');
+                if (activeForm) {
+                    activeForm.dispatchEvent(new Event('submit'));
+                    showNotification('Settings saved', 'success');
+                }
+            }
         });
     </script>
 </body>
